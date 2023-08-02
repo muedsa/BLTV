@@ -1,6 +1,8 @@
 plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.kotlinAndroid)
+    kotlin("kapt")
+    alias(libs.plugins.hiltAndroid)
 }
 
 android {
@@ -29,11 +31,11 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
     kotlinOptions {
-        jvmTarget = JavaVersion.VERSION_11.toString()
+        jvmTarget = JavaVersion.VERSION_17.toString()
     }
     buildFeatures {
         compose = true
@@ -68,6 +70,9 @@ dependencies {
     implementation(libs.tv.foundation)
     implementation(libs.tv.material)
 
+    implementation(libs.hilt.android)
+    kapt(libs.hilt.compiler)
+
     // implementation(libs.leanback)
 
     implementation(libs.coil)
@@ -78,4 +83,8 @@ dependencies {
     implementation(libs.qrcode)
 
     implementation(libs.timber)
+}
+
+kapt {
+    correctErrorTypes = true
 }
