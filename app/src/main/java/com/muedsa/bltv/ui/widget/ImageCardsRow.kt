@@ -9,7 +9,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.tv.foundation.lazy.list.TvLazyListState
 import androidx.tv.foundation.lazy.list.TvLazyRow
+import androidx.tv.foundation.lazy.list.rememberTvLazyListState
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
@@ -19,6 +21,7 @@ import com.muedsa.bltv.ui.theme.BLTVTheme
 @OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun <T> ImageCardsRow(
+    state: TvLazyListState = rememberTvLazyListState(),
     title: String,
     modelList: List<T> = listOf(),
     imageFn: (model: T) -> String,
@@ -35,6 +38,7 @@ fun <T> ImageCardsRow(
             maxLines = 1
         )
         TvLazyRow(
+            state = state,
             contentPadding = PaddingValues(end = 100.dp)
         ) {
             item {
@@ -57,6 +61,7 @@ fun <T> ImageCardsRow(
 @OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun <T> StandardImageCardsRow(
+    state: TvLazyListState = rememberTvLazyListState(),
     title: String,
     modelList: List<T> = listOf(),
     imageFn: (model: T) -> String,
@@ -73,6 +78,7 @@ fun <T> StandardImageCardsRow(
             maxLines = 1
         )
         TvLazyRow(
+            state = state,
             contentPadding = PaddingValues(end = 100.dp)
         ) {
             modelList.forEachIndexed { index, it ->
