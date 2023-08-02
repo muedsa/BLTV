@@ -30,7 +30,7 @@ import androidx.tv.material3.OutlinedIconButton
 import com.muedsa.bltv.model.ContentModel
 import com.muedsa.bltv.model.DemoVideo
 import com.muedsa.bltv.ui.features.home.browser.fetchDemoVideos
-import com.muedsa.bltv.ui.widget.ImageCardsRow
+import com.muedsa.bltv.ui.navigation.NavigationItems
 import com.muedsa.bltv.ui.widget.ScreenBackgroundType
 import com.muedsa.bltv.ui.widget.StandardImageCardsRow
 import timber.log.Timber
@@ -39,7 +39,8 @@ import timber.log.Timber
 @Composable
 fun SearchScreen(
     background: MutableState<String?>,
-    backgroundType: MutableState<ScreenBackgroundType>
+    backgroundType: MutableState<ScreenBackgroundType>,
+    onNavigate: (NavigationItems) -> Unit = { _ -> }
 ) {
     val queryText = remember { mutableStateOf("") }
 
@@ -58,9 +59,9 @@ fun SearchScreen(
                     modifier = Modifier
                         .fillMaxWidth(0.55f)
                         .background(
-                        color = MaterialTheme.colorScheme.onBackground,
-                        shape = TextFieldDefaults.outlinedShape
-                    ),
+                            color = MaterialTheme.colorScheme.onBackground,
+                            shape = TextFieldDefaults.outlinedShape
+                        ),
                     textStyle = MaterialTheme.typography.bodyLarge,
                     colors = TextFieldDefaults.outlinedTextFieldColors(
                         focusedBorderColor = MaterialTheme.colorScheme.surfaceTint,
@@ -98,6 +99,7 @@ fun SearchScreen(
                         },
                         onItemClick = { _, video ->
                             Timber.d("Click $video")
+                            onNavigate(NavigationItems.VideoDetail)
                         }
                     )
                 }

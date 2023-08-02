@@ -8,7 +8,7 @@ import com.muedsa.bltv.ui.features.home.browser.fetchDemoVideos
 import com.muedsa.bltv.ui.widget.StandardImageCardsRow
 
 @Composable
-fun FollowLiveRoomsRow(
+fun FollowLivesRow(
     onItemFocus: (child: Int, model: DemoVideo) -> Unit,
     onItemClick: (child: Int, model: DemoVideo) -> Unit,
 ) {

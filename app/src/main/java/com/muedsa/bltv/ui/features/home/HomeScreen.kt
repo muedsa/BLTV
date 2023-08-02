@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -26,14 +27,17 @@ import com.muedsa.bltv.ui.features.home.live.LiveScreen
 import com.muedsa.bltv.ui.features.home.login.LoginScreen
 import com.muedsa.bltv.ui.features.home.search.SearchScreen
 import com.muedsa.bltv.ui.features.others.NotFoundScreen
+import com.muedsa.bltv.ui.navigation.NavigationItems
+import com.muedsa.bltv.ui.theme.BLTVTheme
 import com.muedsa.bltv.ui.widget.ScreenBackground
 import com.muedsa.bltv.ui.widget.ScreenBackgroundType
-import com.muedsa.bltv.ui.theme.BLTVTheme
 
 @OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
-fun HomeScreen() {
-    var selectedTabIndex by remember { mutableStateOf(0) }
+fun HomeScreen(
+    onNavigate: (NavigationItems) -> Unit = { _ -> },
+) {
+    var selectedTabIndex by remember { mutableIntStateOf(0) }
     val tabs = listOf(
         HomeNavTabs.Video,
         HomeNavTabs.Live,
@@ -78,7 +82,7 @@ fun HomeScreen() {
                 }
             }
         }
-        HomeContent(selectedTabIndex, background, backgroundType)
+        HomeContent(selectedTabIndex, background, backgroundType, onNavigate)
     }
 }
 
@@ -86,12 +90,13 @@ fun HomeScreen() {
 fun HomeContent(
     tabIndex: Int,
     background: MutableState<String?>,
-    backgroundType: MutableState<ScreenBackgroundType>
+    backgroundType: MutableState<ScreenBackgroundType>,
+    onNavigate: (NavigationItems) -> Unit = { _ -> },
 ) {
     when (tabIndex) {
-        0 -> BrowserScreen(background, backgroundType)
-        1 -> LiveScreen(background, backgroundType)
-        2 -> SearchScreen(background, backgroundType)
+        0 -> BrowserScreen(background, backgroundType, onNavigate)
+        1 -> LiveScreen(background, backgroundType, onNavigate)
+        2 -> SearchScreen(background, backgroundType, onNavigate)
         3 -> LoginScreen()
         else -> NotFoundScreen()
     }

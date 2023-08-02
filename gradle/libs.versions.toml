@@ -5,9 +5,10 @@ hilt = "2.45"
 core-ktx = "1.10.1"
 core-splashscreen = "1.0.0"
 lifecycle = "2.6.1"
-activity-compose = "1.7.0"
+activity-compose = "1.7.1"
 compose-bom = "2023.04.00"
 androidx-tv = "1.0.0-alpha07"
+navigation-compose = "2.5.3"
 leanback = "1.2.0-alpha02"
 coil = "2.4.0"
 coil-transformers = "1.0.6"
@@ -30,6 +31,7 @@ ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
 material3 = { group = "androidx.compose.material3", name = "material3" }
 tv-foundation = { group = "androidx.tv", name = "tv-foundation", version.ref = "androidx-tv" }
 tv-material = { group = "androidx.tv", name = "tv-material", version.ref = "androidx-tv" }
+navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "navigation-compose" }
 hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "hilt" }
 hilt-compiler = { module = "com.google.dagger:hilt-android-compiler", version.ref = "hilt" }
 leanback =  { group = "androidx.leanback", name = "leanback", version.ref = "leanback" }

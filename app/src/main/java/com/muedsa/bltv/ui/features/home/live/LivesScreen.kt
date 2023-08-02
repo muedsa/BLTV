@@ -7,13 +7,15 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.tv.foundation.lazy.list.TvLazyColumn
+import com.muedsa.bltv.ui.navigation.NavigationItems
 import com.muedsa.bltv.ui.widget.ScreenBackgroundType
 import timber.log.Timber
 
 @Composable
 fun LiveScreen(
     background: MutableState<String?>,
-    backgroundType: MutableState<ScreenBackgroundType>
+    backgroundType: MutableState<ScreenBackgroundType>,
+    onNavigate: (NavigationItems) -> Unit = { _ -> }
 ) {
     TvLazyColumn(
         modifier = Modifier
@@ -21,17 +23,19 @@ fun LiveScreen(
             .offset(x = 50.dp)
     ) {
         item {
-            PopularLiveRoomsRow(onItemFocus = { _, video ->
+            PopularLivesRow(onItemFocus = { _, video ->
                 background.value = video.image
                 backgroundType.value = ScreenBackgroundType.FULL_SCREEN
             }, onItemClick = { _, video ->
                 Timber.d("Click $video")
+                onNavigate(NavigationItems.LiveDetail)
             })
-            FollowLiveRoomsRow(onItemFocus = { _, video ->
+            FollowLivesRow(onItemFocus = { _, video ->
                 background.value = video.image
                 backgroundType.value = ScreenBackgroundType.FULL_SCREEN
             }, onItemClick = { _, video ->
                 Timber.d("Click $video")
+                onNavigate(NavigationItems.LiveDetail)
             })
         }
     }

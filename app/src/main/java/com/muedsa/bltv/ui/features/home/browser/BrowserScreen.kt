@@ -20,15 +20,17 @@ import androidx.tv.foundation.lazy.list.TvLazyColumn
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.ImmersiveList
 import com.muedsa.bltv.model.ContentModel
-import com.muedsa.bltv.ui.widget.ScreenBackgroundType
+import com.muedsa.bltv.ui.navigation.NavigationItems
 import com.muedsa.bltv.ui.widget.ContentBlock
+import com.muedsa.bltv.ui.widget.ScreenBackgroundType
 import timber.log.Timber
 
 @OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun BrowserScreen(
     background: MutableState<String?>,
-    backgroundType: MutableState<ScreenBackgroundType>
+    backgroundType: MutableState<ScreenBackgroundType>,
+    onNavigate: (NavigationItems) -> Unit = { _ -> }
 ) {
 
     val configuration = LocalConfiguration.current
@@ -76,6 +78,7 @@ fun BrowserScreen(
                         },
                         onItemClick = { _, video ->
                             Timber.d("Click $video")
+                            onNavigate(NavigationItems.VideoDetail)
                         })
                 }
             }
@@ -90,6 +93,7 @@ fun BrowserScreen(
                 },
                 onItemClick = { _, video ->
                     Timber.d("Click $video")
+                    onNavigate(NavigationItems.VideoDetail)
                 })
 
             HistoryVideosRow(
@@ -102,6 +106,7 @@ fun BrowserScreen(
                 },
                 onItemClick = { _, video ->
                     Timber.d("Click $video")
+                    onNavigate(NavigationItems.VideoDetail)
                 })
         }
     }

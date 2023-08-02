@@ -7,12 +7,12 @@ plugins {
 
 android {
     namespace = "com.muedsa.bltv"
-    compileSdk = 33
+    compileSdk = 34
 
     defaultConfig {
         applicationId = "com.muedsa.bltv"
         minSdk = 26
-        targetSdk = 33
+        targetSdk = 34
         versionCode = 1
         versionName = "1.0"
         vectorDrawables {
@@ -69,6 +69,8 @@ dependencies {
 
     implementation(libs.tv.foundation)
     implementation(libs.tv.material)
+
+    implementation(libs.navigation.compose)
 
     implementation(libs.hilt.android)
     kapt(libs.hilt.compiler)
