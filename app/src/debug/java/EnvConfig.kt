@@ -1,3 +1,3 @@
-public class EnvConfig {
-    public static final boolean DEBUG = true;
+object EnvConfig {
+    const val DEBUG = true
 }
