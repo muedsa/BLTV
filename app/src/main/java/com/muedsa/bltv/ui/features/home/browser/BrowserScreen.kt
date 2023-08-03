@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -16,20 +15,23 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.tv.foundation.lazy.list.TvLazyColumn
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.ImmersiveList
 import com.muedsa.bltv.model.ContentModel
+import com.muedsa.bltv.model.video.VideoViewModel
 import com.muedsa.bltv.ui.navigation.NavigationItems
 import com.muedsa.bltv.ui.widget.ContentBlock
+import com.muedsa.bltv.ui.widget.ScreenBackgroundState
 import com.muedsa.bltv.ui.widget.ScreenBackgroundType
 import timber.log.Timber
 
 @OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun BrowserScreen(
-    background: MutableState<String?>,
-    backgroundType: MutableState<ScreenBackgroundType>,
+    videoViewModel: VideoViewModel = hiltViewModel(),
+    backgroundState: ScreenBackgroundState,
     onNavigate: (NavigationItems) -> Unit = { _ -> }
 ) {
 
@@ -68,13 +70,14 @@ fun BrowserScreen(
                             .height(screenHeight - 150.dp - 75.dp)
                     )
                     PopularVideosRow(
+                        videoViewModel = videoViewModel,
                         onItemFocus = { _, video ->
                             title = video.title
                             subTitle = video.author
                             description = video.desc
 
-                            background.value = video.image
-                            backgroundType.value = ScreenBackgroundType.SCRIM
+                            backgroundState.url = video.image
+                            backgroundState.type = ScreenBackgroundType.SCRIM
                         },
                         onItemClick = { _, video ->
                             Timber.d("Click $video")
@@ -84,12 +87,13 @@ fun BrowserScreen(
             }
 
             FollowDynamicVideosRow(
+                videoViewModel = videoViewModel,
                 onItemFocus = { _, video ->
                     title = video.title
                     subTitle = video.author
                     description = video.desc
-                    background.value = video.image
-                    backgroundType.value = ScreenBackgroundType.FULL_SCREEN
+                    backgroundState.url = video.image
+                    backgroundState.type = ScreenBackgroundType.FULL_SCREEN
                 },
                 onItemClick = { _, video ->
                     Timber.d("Click $video")
@@ -97,12 +101,13 @@ fun BrowserScreen(
                 })
 
             HistoryVideosRow(
+                videoViewModel = videoViewModel,
                 onItemFocus = { _, video ->
                     title = video.title
                     subTitle = video.author
                     description = video.desc
-                    background.value = video.image
-                    backgroundType.value = ScreenBackgroundType.FULL_SCREEN
+                    backgroundState.url = video.image
+                    backgroundState.type = ScreenBackgroundType.FULL_SCREEN
                 },
                 onItemClick = { _, video ->
                     Timber.d("Click $video")

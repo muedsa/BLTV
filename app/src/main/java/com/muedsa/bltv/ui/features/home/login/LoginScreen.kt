@@ -42,7 +42,6 @@ fun LoginScreen(
     } else {
         displayMetrics.widthPixels / 2
     }
-
     val loginState = loginViewModel.loginState
 
     Column(

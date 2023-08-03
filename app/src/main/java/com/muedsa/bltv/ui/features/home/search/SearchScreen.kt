@@ -2,7 +2,7 @@ package com.muedsa.bltv.ui.features.home.search
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -16,12 +16,14 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.tv.foundation.lazy.list.TvLazyColumn
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.Icon
@@ -29,8 +31,10 @@ import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.OutlinedIconButton
 import com.muedsa.bltv.model.ContentModel
 import com.muedsa.bltv.model.DemoVideo
-import com.muedsa.bltv.ui.features.home.browser.fetchDemoVideos
+import com.muedsa.bltv.model.live.LiveViewModel
+import com.muedsa.bltv.model.video.VideoViewModel
 import com.muedsa.bltv.ui.navigation.NavigationItems
+import com.muedsa.bltv.ui.widget.ScreenBackgroundState
 import com.muedsa.bltv.ui.widget.ScreenBackgroundType
 import com.muedsa.bltv.ui.widget.StandardImageCardsRow
 import timber.log.Timber
@@ -38,13 +42,15 @@ import timber.log.Timber
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalTvMaterial3Api::class)
 @Composable
 fun SearchScreen(
-    background: MutableState<String?>,
-    backgroundType: MutableState<ScreenBackgroundType>,
+    videoViewModel: VideoViewModel = viewModel(),
+    liveViewModel: LiveViewModel = viewModel(),
+    backgroundState: ScreenBackgroundState,
     onNavigate: (NavigationItems) -> Unit = { _ -> }
 ) {
-    val queryText = remember { mutableStateOf("") }
+    val searchVideos = remember { videoViewModel.searchVideos }
+    val searchLives = remember { liveViewModel.searchLives }
 
-    val videoResult = remember { mutableStateOf(listOf<DemoVideo>()) }
+    var queryText by remember { mutableStateOf("") }
 
     TvLazyColumn {
         item {
@@ -68,34 +74,50 @@ fun SearchScreen(
                         cursorColor = MaterialTheme.colorScheme.background,
                         textColor = MaterialTheme.colorScheme.surface,
                     ),
-                    value = queryText.value,
+                    value = queryText,
                     onValueChange = {
-                        queryText.value = it
+                        queryText = it
                     },
                     singleLine = true
                 )
                 Spacer(modifier = Modifier.width(20.dp))
                 OutlinedIconButton(onClick = {
-                    videoResult.value = fetchDemoVideos()
+                    videoViewModel.fetchSearchVideos(queryText)
+                    liveViewModel.fetchSearchLives(queryText)
                 }) {
                     Icon(Icons.Outlined.Search, contentDescription = "Localized description")
                 }
             }
 
-            if (videoResult.value.isNotEmpty()) {
-                Box(
+            if (searchVideos.isNotEmpty()) {
+                Column(
                     modifier = Modifier
                         .fillMaxSize()
                         .offset(x = 50.dp)
                 ) {
                     StandardImageCardsRow(
                         title = "视频",
-                        modelList = videoResult.value,
+                        modelList = searchVideos,
                         imageFn = DemoVideo::image,
                         contentFn = { video -> ContentModel(video.title, subtitle = video.author) },
                         onItemFocus = { _, video ->
-                            background.value = video.image
-                            backgroundType.value = ScreenBackgroundType.FULL_SCREEN
+                            backgroundState.url = video.image
+                            backgroundState.type = ScreenBackgroundType.FULL_SCREEN
+                        },
+                        onItemClick = { _, video ->
+                            Timber.d("Click $video")
+                            onNavigate(NavigationItems.VideoDetail)
+                        }
+                    )
+
+                    StandardImageCardsRow(
+                        title = "直播",
+                        modelList = searchLives,
+                        imageFn = DemoVideo::image,
+                        contentFn = { video -> ContentModel(video.title, subtitle = video.author) },
+                        onItemFocus = { _, video ->
+                            backgroundState.url = video.image
+                            backgroundState.type = ScreenBackgroundType.FULL_SCREEN
                         },
                         onItemClick = { _, video ->
                             Timber.d("Click $video")

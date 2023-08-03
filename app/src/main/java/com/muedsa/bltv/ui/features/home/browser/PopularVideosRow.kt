@@ -2,16 +2,18 @@ package com.muedsa.bltv.ui.features.home.browser
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
-import com.muedsa.bltv.model.ContentModel
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.muedsa.bltv.model.DemoVideo
+import com.muedsa.bltv.model.video.VideoViewModel
 import com.muedsa.bltv.ui.widget.ImageCardsRow
 
 @Composable
 fun PopularVideosRow(
+    videoViewModel: VideoViewModel = viewModel(),
     onItemFocus: (child: Int, model: DemoVideo) -> Unit,
     onItemClick: (child: Int, model: DemoVideo) -> Unit,
 ) {
-    val videoList = remember { fetchDemoVideos() }
+    val videoList = remember { videoViewModel.popularVideos }
     ImageCardsRow(
         title = "推荐视频",
         modelList = videoList,

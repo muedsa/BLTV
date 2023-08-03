@@ -56,6 +56,8 @@ dependencies {
     implementation(libs.core.splashscreen)
     implementation(libs.lifecycle.runtime.ktx)
     implementation(libs.lifecycle.viewmodel.compose)
+    implementation(libs.hilt.android)
+    kapt(libs.hilt.compiler)
     implementation(libs.activity.compose)
     implementation(platform(libs.compose.bom))
     implementation(libs.ui)
@@ -71,9 +73,7 @@ dependencies {
     implementation(libs.tv.material)
 
     implementation(libs.navigation.compose)
-
-    implementation(libs.hilt.android)
-    kapt(libs.hilt.compiler)
+    implementation(libs.hilt.navigation.compose)
 
     // implementation(libs.leanback)
 

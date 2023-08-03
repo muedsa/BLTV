@@ -6,25 +6,29 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Stable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.Saver
+import androidx.compose.runtime.saveable.listSaver
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.MaterialTheme
 import coil.compose.AsyncImage
-import coil.request.ImageRequest
 import com.muedsa.bltv.ui.theme.BLTVTheme
 
 @OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun ScreenBackground(
-    url: String?,
-    type: ScreenBackgroundType = ScreenBackgroundType.FULL_SCREEN
+    state: ScreenBackgroundState = rememberScreenBackgroundState()
 ) {
     val configuration = LocalConfiguration.current
     val screenWidth  = configuration.screenWidthDp.dp
@@ -32,24 +36,24 @@ fun ScreenBackground(
     val immersiveImageHeight = screenHeight * 8 / 10
     val immersiveImageWidth = immersiveImageHeight * 16 / 9
     val immersiveImageOffsetX = screenWidth - immersiveImageWidth
-    val imageModifier = if(type == ScreenBackgroundType.SCRIM) {
+    val imageModifier = if (state.type == ScreenBackgroundType.SCRIM) {
         Modifier
             .size(immersiveImageWidth, immersiveImageHeight)
             .offset(x = immersiveImageOffsetX)
-    }else{
+    } else {
         Modifier.size(screenWidth, screenHeight)
     }
 
-    if(!url.isNullOrEmpty()) {
+    if (!state.url.isNullOrEmpty()) {
         Box(Modifier.fillMaxSize()) {
             AsyncImage(
-                model = url,
+                model = state.url,
                 contentDescription = null,
                 modifier = imageModifier,
                 contentScale = ContentScale.FillBounds
             )
 
-            if(type == ScreenBackgroundType.SCRIM) {
+            if (state.type == ScreenBackgroundType.SCRIM) {
                 Box(
                     Modifier
                         .size(immersiveImageWidth, immersiveImageHeight)
@@ -81,7 +85,41 @@ fun ScreenBackground(
     }
 }
 
-enum class ScreenBackgroundType{
+@Stable
+class ScreenBackgroundState(
+    initUrl: String? = null,
+    initType: ScreenBackgroundType = ScreenBackgroundType.FULL_SCREEN
+) {
+    var url by mutableStateOf(initUrl)
+    var type by mutableStateOf(initType)
+
+    companion object {
+        val Saver: Saver<ScreenBackgroundState, *> = listSaver(
+            save = { listOf(it.url, it.type) },
+            restore = {
+                ScreenBackgroundState(
+                    initUrl = it[0] as String?,
+                    initType = it[1] as ScreenBackgroundType
+                )
+            }
+        )
+    }
+}
+
+@Composable
+fun rememberScreenBackgroundState(
+    initUrl: String? = null,
+    initType: ScreenBackgroundType = ScreenBackgroundType.FULL_SCREEN
+): ScreenBackgroundState {
+    return rememberSaveable(saver = ScreenBackgroundState.Saver) {
+        ScreenBackgroundState(
+            initUrl = initUrl,
+            initType = initType
+        )
+    }
+}
+
+enum class ScreenBackgroundType {
     FULL_SCREEN,
     SCRIM
 }
@@ -90,6 +128,6 @@ enum class ScreenBackgroundType{
 @Composable
 fun ScreenBackgroundPreview() {
     BLTVTheme {
-        ScreenBackground("https://i1.hdslb.com/bfs/archive/3f9a95620b6a1ea1be04e3a001081a3f544dbd18.jpg")
+        ScreenBackground()
     }
 }

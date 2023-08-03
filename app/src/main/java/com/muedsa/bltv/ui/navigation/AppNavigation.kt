@@ -1,9 +1,13 @@
 package com.muedsa.bltv.ui.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.muedsa.bltv.model.live.LiveViewModel
+import com.muedsa.bltv.model.login.LoginViewModel
+import com.muedsa.bltv.model.video.VideoViewModel
 import com.muedsa.bltv.ui.features.detail.LiveDetailScreen
 import com.muedsa.bltv.ui.features.detail.VideoDetailScreen
 import com.muedsa.bltv.ui.features.home.HomeScreen
@@ -17,9 +21,17 @@ fun AppNavigation(navController: NavHostController) {
     NavHost(navController = navController, startDestination = NavigationItems.Home.path) {
 
         composable(NavigationItems.Home.path) {
-            HomeScreen(onNavigate = {
-                navController.navigate(it.path)
-            })
+            val videoViewModel = hiltViewModel<VideoViewModel>()
+            val liveViewModel = hiltViewModel<LiveViewModel>()
+            val loginViewModel = hiltViewModel<LoginViewModel>()
+            HomeScreen(
+                videoViewModel = videoViewModel,
+                liveViewModel = liveViewModel,
+                loginViewModel = loginViewModel,
+                onNavigate = {
+                    navController.navigate(it.path)
+                }
+            )
         }
 
         composable(NavigationItems.VideoDetail.path) {
