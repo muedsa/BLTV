@@ -1,5 +1,5 @@
 # BLTV  
-one compose tv demo app
+a android jetpack compose tv demo app.
 
 ## Screenshot
 ![Screenshot1](/screenshot/Screenshot_20230802_134111.png)  
