@@ -18,18 +18,22 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.MaterialTheme
 import coil.compose.AsyncImage
+import coil.request.ImageRequest
 import com.muedsa.bltv.ui.theme.BLTVTheme
+import jp.wasabeef.transformers.coil.BlurTransformation
 
 @OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun ScreenBackground(
     state: ScreenBackgroundState = rememberScreenBackgroundState()
 ) {
+    val context = LocalContext.current
     val configuration = LocalConfiguration.current
     val screenWidth  = configuration.screenWidthDp.dp
     val screenHeight = configuration.screenHeightDp.dp
@@ -45,9 +49,17 @@ fun ScreenBackground(
     }
 
     if (!state.url.isNullOrEmpty()) {
+        val imageRequestBuilder = ImageRequest.Builder(context)
+            .data(state.url)
+        if (state.type == ScreenBackgroundType.BLUR) {
+            imageRequestBuilder.transformations(
+                BlurTransformation(context = context)
+            )
+        }
+
         Box(Modifier.fillMaxSize()) {
             AsyncImage(
-                model = state.url,
+                model = imageRequestBuilder.build(),
                 contentDescription = null,
                 modifier = imageModifier,
                 contentScale = ContentScale.FillBounds
@@ -62,7 +74,6 @@ fun ScreenBackground(
                             Brush.horizontalGradient(
                                 0.0f to MaterialTheme.colorScheme.background,
                                 0.8f to Color.Transparent,
-                                1.0f to Color.Transparent,
                                 startX = 0.0f
                             )
                         )
@@ -88,7 +99,7 @@ fun ScreenBackground(
 @Stable
 class ScreenBackgroundState(
     initUrl: String? = null,
-    initType: ScreenBackgroundType = ScreenBackgroundType.FULL_SCREEN
+    initType: ScreenBackgroundType = ScreenBackgroundType.BLUR
 ) {
     var url by mutableStateOf(initUrl)
     var type by mutableStateOf(initType)
@@ -109,7 +120,7 @@ class ScreenBackgroundState(
 @Composable
 fun rememberScreenBackgroundState(
     initUrl: String? = null,
-    initType: ScreenBackgroundType = ScreenBackgroundType.FULL_SCREEN
+    initType: ScreenBackgroundType = ScreenBackgroundType.BLUR
 ): ScreenBackgroundState {
     return rememberSaveable(saver = ScreenBackgroundState.Saver) {
         ScreenBackgroundState(
@@ -120,7 +131,7 @@ fun rememberScreenBackgroundState(
 }
 
 enum class ScreenBackgroundType {
-    FULL_SCREEN,
+    BLUR,
     SCRIM
 }
 

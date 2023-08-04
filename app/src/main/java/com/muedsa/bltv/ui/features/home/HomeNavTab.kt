@@ -63,7 +63,7 @@ fun HomeNavTab(
                     onFocus = {
                         if (selectedTabIndex != index) {
                             backgroundState.url = null
-                            backgroundState.type = ScreenBackgroundType.FULL_SCREEN
+                            backgroundState.type = ScreenBackgroundType.BLUR
                             selectedTabIndex = index
                         }
                     },

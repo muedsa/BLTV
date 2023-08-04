@@ -79,7 +79,7 @@ dependencies {
 
     implementation(libs.coil)
     implementation(libs.coil.compose)
-    // implementation(libs.coil.transformers)
+    implementation(libs.coil.transformers)
     // implementation(libs.coil.transformers.gpu)
 
     implementation(libs.qrcode)

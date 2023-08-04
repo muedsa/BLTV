@@ -102,7 +102,7 @@ fun SearchScreen(
                         contentFn = { video -> ContentModel(video.title, subtitle = video.author) },
                         onItemFocus = { _, video ->
                             backgroundState.url = video.image
-                            backgroundState.type = ScreenBackgroundType.FULL_SCREEN
+                            backgroundState.type = ScreenBackgroundType.BLUR
                         },
                         onItemClick = { _, video ->
                             Timber.d("Click $video")
@@ -117,7 +117,7 @@ fun SearchScreen(
                         contentFn = { video -> ContentModel(video.title, subtitle = video.author) },
                         onItemFocus = { _, video ->
                             backgroundState.url = video.image
-                            backgroundState.type = ScreenBackgroundType.FULL_SCREEN
+                            backgroundState.type = ScreenBackgroundType.BLUR
                         },
                         onItemClick = { _, video ->
                             Timber.d("Click $video")

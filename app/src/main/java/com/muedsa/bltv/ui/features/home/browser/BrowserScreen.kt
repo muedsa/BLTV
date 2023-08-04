@@ -93,7 +93,7 @@ fun BrowserScreen(
                     subTitle = video.author
                     description = video.desc
                     backgroundState.url = video.image
-                    backgroundState.type = ScreenBackgroundType.FULL_SCREEN
+                    backgroundState.type = ScreenBackgroundType.BLUR
                 },
                 onItemClick = { _, video ->
                     Timber.d("Click $video")
@@ -107,7 +107,7 @@ fun BrowserScreen(
                     subTitle = video.author
                     description = video.desc
                     backgroundState.url = video.image
-                    backgroundState.type = ScreenBackgroundType.FULL_SCREEN
+                    backgroundState.type = ScreenBackgroundType.BLUR
                 },
                 onItemClick = { index, video ->
                     Timber.d("Click $video")
