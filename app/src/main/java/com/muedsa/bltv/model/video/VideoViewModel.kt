@@ -16,6 +16,7 @@ class VideoViewModel @Inject constructor(
     val followDynamicVideos = mutableStateListOf<DemoVideo>()
     val historyVideos = mutableStateListOf<DemoVideo>()
     val searchVideos = mutableStateListOf<DemoVideo>()
+    val upVideos = mutableStateListOf<DemoVideo>()
 
     fun fetchPopularVideos() {
         popularVideos.clear()
@@ -35,6 +36,15 @@ class VideoViewModel @Inject constructor(
     fun fetchSearchVideos(query: String) {
         searchVideos.clear()
         searchVideos.addAll(repo.fetchDemoVideos())
+    }
+
+    fun fetchUpVideos(mid: Long) {
+        upVideos.clear()
+        upVideos.addAll(repo.fetchDemoVideos())
+        upVideos.addAll(repo.fetchDemoVideos())
+        upVideos.addAll(repo.fetchDemoVideos())
+        upVideos.addAll(repo.fetchDemoVideos())
+        upVideos.addAll(repo.fetchDemoVideos())
     }
 
     init {

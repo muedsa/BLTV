@@ -32,7 +32,7 @@ import timber.log.Timber
 fun BrowserScreen(
     videoViewModel: VideoViewModel = hiltViewModel(),
     backgroundState: ScreenBackgroundState,
-    onNavigate: (NavigationItems) -> Unit = { _ -> }
+    onNavigate: (NavigationItems, List<String>?) -> Unit = { _, _ -> }
 ) {
 
     val configuration = LocalConfiguration.current
@@ -81,7 +81,7 @@ fun BrowserScreen(
                         },
                         onItemClick = { _, video ->
                             Timber.d("Click $video")
-                            onNavigate(NavigationItems.VideoDetail)
+                            onNavigate(NavigationItems.VideoDetail, null)
                         })
                 }
             }
@@ -97,7 +97,7 @@ fun BrowserScreen(
                 },
                 onItemClick = { _, video ->
                     Timber.d("Click $video")
-                    onNavigate(NavigationItems.VideoDetail)
+                    onNavigate(NavigationItems.VideoDetail, null)
                 })
 
             HistoryVideosRow(
@@ -109,9 +109,9 @@ fun BrowserScreen(
                     backgroundState.url = video.image
                     backgroundState.type = ScreenBackgroundType.FULL_SCREEN
                 },
-                onItemClick = { _, video ->
+                onItemClick = { index, video ->
                     Timber.d("Click $video")
-                    onNavigate(NavigationItems.VideoDetail)
+                    onNavigate(NavigationItems.UpVideos, listOf(index.toString()))
                 })
         }
     }

@@ -47,7 +47,7 @@ fun HomeNavTab(
     liveViewModel: LiveViewModel = viewModel(),
     loginViewModel: LoginViewModel = viewModel(),
     backgroundState: ScreenBackgroundState = ScreenBackgroundState(),
-    onNavigate: (NavigationItems) -> Unit = { _ -> },
+    onNavigate: (NavigationItems, List<String>?) -> Unit = { _, _ -> },
 ) {
     var selectedTabIndex by rememberSaveable { mutableIntStateOf(0) }
     Column {
@@ -102,7 +102,7 @@ fun HomeContent(
     liveViewModel: LiveViewModel,
     loginViewModel: LoginViewModel,
     backgroundState: ScreenBackgroundState,
-    onNavigate: (NavigationItems) -> Unit = { _ -> },
+    onNavigate: (NavigationItems, List<String>?) -> Unit = { _, _ -> },
 ) {
     when (tabIndex) {
         0 -> BrowserScreen(

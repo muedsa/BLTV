@@ -17,7 +17,7 @@ import timber.log.Timber
 fun LiveScreen(
     liveViewModel: LiveViewModel = viewModel(),
     backgroundState: ScreenBackgroundState,
-    onNavigate: (NavigationItems) -> Unit = { _ -> }
+    onNavigate: (NavigationItems, List<String>?) -> Unit = { _, _ -> }
 ) {
     TvLazyColumn(
         modifier = Modifier
@@ -32,7 +32,7 @@ fun LiveScreen(
                     backgroundState.type = ScreenBackgroundType.FULL_SCREEN
                 }, onItemClick = { _, video ->
                     Timber.d("Click $video")
-                    onNavigate(NavigationItems.LiveDetail)
+                    onNavigate(NavigationItems.LiveDetail, null)
                 })
             FollowLivesRow(
                 liveViewModel = liveViewModel,
@@ -41,7 +41,7 @@ fun LiveScreen(
                     backgroundState.type = ScreenBackgroundType.FULL_SCREEN
                 }, onItemClick = { _, video ->
                     Timber.d("Click $video")
-                    onNavigate(NavigationItems.LiveDetail)
+                    onNavigate(NavigationItems.LiveDetail, null)
                 })
         }
     }

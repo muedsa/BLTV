@@ -45,7 +45,7 @@ fun SearchScreen(
     videoViewModel: VideoViewModel = viewModel(),
     liveViewModel: LiveViewModel = viewModel(),
     backgroundState: ScreenBackgroundState,
-    onNavigate: (NavigationItems) -> Unit = { _ -> }
+    onNavigate: (NavigationItems, List<String>?) -> Unit = { _, _ -> }
 ) {
     val searchVideos = remember { videoViewModel.searchVideos }
     val searchLives = remember { liveViewModel.searchLives }
@@ -106,7 +106,7 @@ fun SearchScreen(
                         },
                         onItemClick = { _, video ->
                             Timber.d("Click $video")
-                            onNavigate(NavigationItems.VideoDetail)
+                            onNavigate(NavigationItems.VideoDetail, null)
                         }
                     )
 
@@ -121,7 +121,7 @@ fun SearchScreen(
                         },
                         onItemClick = { _, video ->
                             Timber.d("Click $video")
-                            onNavigate(NavigationItems.VideoDetail)
+                            onNavigate(NavigationItems.VideoDetail, null)
                         }
                     )
                 }

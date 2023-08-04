@@ -17,7 +17,7 @@ fun HomeScreen(
     videoViewModel: VideoViewModel = viewModel(),
     liveViewModel: LiveViewModel = viewModel(),
     loginViewModel: LoginViewModel = viewModel(),
-    onNavigate: (NavigationItems) -> Unit = { _ -> },
+    onNavigate: (NavigationItems, List<String>?) -> Unit = { _, _ -> },
 ) {
     val backgroundState = rememberScreenBackgroundState();
     ScreenBackground(state = backgroundState)

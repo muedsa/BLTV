@@ -1,10 +1,14 @@
 package com.muedsa.bltv.ui.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableLongStateOf
+import androidx.compose.runtime.remember
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.navArgument
 import com.muedsa.bltv.model.live.LiveViewModel
 import com.muedsa.bltv.model.login.LoginViewModel
 import com.muedsa.bltv.model.video.VideoViewModel
@@ -28,8 +32,8 @@ fun AppNavigation(navController: NavHostController) {
                 videoViewModel = videoViewModel,
                 liveViewModel = liveViewModel,
                 loginViewModel = loginViewModel,
-                onNavigate = {
-                    navController.navigate(it.path)
+                onNavigate = { navItem, pathParams ->
+                    onNavigate(navController, navItem, pathParams)
                 }
             )
         }
@@ -50,12 +54,40 @@ fun AppNavigation(navController: NavHostController) {
             LivePlaybackScreen()
         }
 
-        composable(NavigationItems.UpVideos.path) {
-            UpVideosScreen()
+        composable(NavigationItems.UpVideos.path, arguments = listOf(navArgument("mid") {
+            type = NavType.LongType
+        })) {
+            val videoViewModel = hiltViewModel<VideoViewModel>()
+            val state = remember {
+                mutableLongStateOf(checkNotNull(it.arguments?.getLong("mid")))
+            }
+            UpVideosScreen(
+                state = state,
+                videoViewModel = videoViewModel,
+                onNavigate = { navItem, pathParams ->
+                    onNavigate(navController, navItem, pathParams)
+                }
+            )
         }
 
         composable(NavigationItems.NotFound.path) {
             NotFoundScreen()
         }
     }
+}
+
+fun onNavigate(
+    navController: NavHostController,
+    navItem: NavigationItems,
+    pathParams: List<String>?
+) {
+    var route = navItem.path
+    if (!navItem.pathParams.isNullOrEmpty()) {
+        checkNotNull(pathParams)
+        check(pathParams.size == navItem.pathParams.size)
+        for (i in 0 until navItem.pathParams.size) {
+            route = route.replace(navItem.pathParams[i], pathParams[i])
+        }
+    }
+    navController.navigate(route)
 }
