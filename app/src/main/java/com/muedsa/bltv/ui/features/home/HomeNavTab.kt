@@ -55,7 +55,7 @@ fun HomeNavTab(
             selectedTabIndex = selectedTabIndex,
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(5.dp)
+                .padding(top = 24.dp, bottom = 24.dp)
         ) {
             tabs.forEachIndexed { index, tab ->
                 Tab(
