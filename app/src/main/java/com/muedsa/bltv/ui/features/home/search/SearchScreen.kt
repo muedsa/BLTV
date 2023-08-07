@@ -12,9 +12,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Search
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -39,7 +38,7 @@ import com.muedsa.bltv.ui.widget.ScreenBackgroundType
 import com.muedsa.bltv.ui.widget.StandardImageCardsRow
 import timber.log.Timber
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalTvMaterial3Api::class)
+@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun SearchScreen(
     videoViewModel: VideoViewModel = viewModel(),
@@ -66,13 +65,14 @@ fun SearchScreen(
                         .fillMaxWidth(0.55f)
                         .background(
                             color = MaterialTheme.colorScheme.onBackground,
-                            shape = TextFieldDefaults.outlinedShape
+                            shape = OutlinedTextFieldDefaults.shape
                         ),
                     textStyle = MaterialTheme.typography.bodyLarge,
-                    colors = TextFieldDefaults.outlinedTextFieldColors(
+                    colors = OutlinedTextFieldDefaults.colors(
                         focusedBorderColor = MaterialTheme.colorScheme.surfaceTint,
                         cursorColor = MaterialTheme.colorScheme.background,
-                        textColor = MaterialTheme.colorScheme.surface,
+                        focusedTextColor = MaterialTheme.colorScheme.background,
+                        unfocusedTextColor = MaterialTheme.colorScheme.surface,
                     ),
                     value = queryText,
                     onValueChange = {
