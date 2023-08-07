@@ -33,6 +33,7 @@ import com.muedsa.bltv.model.DemoVideo
 import com.muedsa.bltv.model.live.LiveViewModel
 import com.muedsa.bltv.model.video.VideoViewModel
 import com.muedsa.bltv.ui.navigation.NavigationItems
+import com.muedsa.bltv.ui.theme.CustomerColor
 import com.muedsa.bltv.ui.widget.ScreenBackgroundState
 import com.muedsa.bltv.ui.widget.ScreenBackgroundType
 import com.muedsa.bltv.ui.widget.StandardImageCardsRow
@@ -51,79 +52,92 @@ fun SearchScreen(
 
     var queryText by remember { mutableStateOf("") }
 
-    TvLazyColumn {
-        item {
-            Row(
+    Column {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(30.dp),
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            OutlinedTextField(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(30.dp),
-                horizontalArrangement = Arrangement.Center,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                OutlinedTextField(
-                    modifier = Modifier
-                        .fillMaxWidth(0.55f)
-                        .background(
-                            color = MaterialTheme.colorScheme.onBackground,
-                            shape = OutlinedTextFieldDefaults.shape
-                        ),
-                    textStyle = MaterialTheme.typography.bodyLarge,
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = MaterialTheme.colorScheme.surfaceTint,
-                        cursorColor = MaterialTheme.colorScheme.background,
-                        focusedTextColor = MaterialTheme.colorScheme.background,
-                        unfocusedTextColor = MaterialTheme.colorScheme.surface,
+                    .fillMaxWidth(0.55f)
+                    .background(
+                        color = MaterialTheme.colorScheme.inverseOnSurface,
+                        shape = OutlinedTextFieldDefaults.shape
                     ),
-                    value = queryText,
-                    onValueChange = {
-                        queryText = it
-                    },
-                    singleLine = true
-                )
-                Spacer(modifier = Modifier.width(20.dp))
-                OutlinedIconButton(onClick = {
-                    videoViewModel.fetchSearchVideos(queryText)
-                    liveViewModel.fetchSearchLives(queryText)
-                }) {
-                    Icon(Icons.Outlined.Search, contentDescription = "Localized description")
-                }
+                textStyle = MaterialTheme.typography.bodyLarge,
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedBorderColor = CustomerColor.outline,
+                    cursorColor = MaterialTheme.colorScheme.onSurface,
+                    focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                    unfocusedTextColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                ),
+                value = queryText,
+                onValueChange = {
+                    queryText = it
+                },
+                singleLine = true
+            )
+            Spacer(modifier = Modifier.width(20.dp))
+            OutlinedIconButton(onClick = {
+                videoViewModel.fetchSearchVideos(queryText)
+                liveViewModel.fetchSearchLives(queryText)
+            }) {
+                Icon(Icons.Outlined.Search, contentDescription = "搜索")
             }
+        }
+        if (searchVideos.isNotEmpty()) {
+            TvLazyColumn {
+                item {
+                    if (searchVideos.isNotEmpty()) {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .offset(x = 50.dp)
+                        ) {
+                            StandardImageCardsRow(
+                                title = "视频",
+                                modelList = searchVideos,
+                                imageFn = DemoVideo::image,
+                                contentFn = { video ->
+                                    ContentModel(
+                                        video.title,
+                                        subtitle = video.author
+                                    )
+                                },
+                                onItemFocus = { _, video ->
+                                    backgroundState.url = video.image
+                                    backgroundState.type = ScreenBackgroundType.BLUR
+                                },
+                                onItemClick = { _, video ->
+                                    Timber.d("Click $video")
+                                    onNavigate(NavigationItems.VideoDetail, null)
+                                }
+                            )
 
-            if (searchVideos.isNotEmpty()) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .offset(x = 50.dp)
-                ) {
-                    StandardImageCardsRow(
-                        title = "视频",
-                        modelList = searchVideos,
-                        imageFn = DemoVideo::image,
-                        contentFn = { video -> ContentModel(video.title, subtitle = video.author) },
-                        onItemFocus = { _, video ->
-                            backgroundState.url = video.image
-                            backgroundState.type = ScreenBackgroundType.BLUR
-                        },
-                        onItemClick = { _, video ->
-                            Timber.d("Click $video")
-                            onNavigate(NavigationItems.VideoDetail, null)
+                            StandardImageCardsRow(
+                                title = "直播",
+                                modelList = searchLives,
+                                imageFn = DemoVideo::image,
+                                contentFn = { video ->
+                                    ContentModel(
+                                        video.title,
+                                        subtitle = video.author
+                                    )
+                                },
+                                onItemFocus = { _, video ->
+                                    backgroundState.url = video.image
+                                    backgroundState.type = ScreenBackgroundType.BLUR
+                                },
+                                onItemClick = { _, video ->
+                                    Timber.d("Click $video")
+                                    onNavigate(NavigationItems.LiveDetail, null)
+                                }
+                            )
                         }
-                    )
-
-                    StandardImageCardsRow(
-                        title = "直播",
-                        modelList = searchLives,
-                        imageFn = DemoVideo::image,
-                        contentFn = { video -> ContentModel(video.title, subtitle = video.author) },
-                        onItemFocus = { _, video ->
-                            backgroundState.url = video.image
-                            backgroundState.type = ScreenBackgroundType.BLUR
-                        },
-                        onItemClick = { _, video ->
-                            Timber.d("Click $video")
-                            onNavigate(NavigationItems.VideoDetail, null)
-                        }
-                    )
+                    }
                 }
             }
         }

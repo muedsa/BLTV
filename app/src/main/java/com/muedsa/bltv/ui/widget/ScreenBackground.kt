@@ -53,7 +53,7 @@ fun ScreenBackground(
             .data(state.url)
         if (state.type == ScreenBackgroundType.BLUR) {
             imageRequestBuilder.transformations(
-                BlurTransformation(context = context)
+                BlurTransformation(context = context, radius = 25),
             )
         }
 
@@ -65,7 +65,13 @@ fun ScreenBackground(
                 contentScale = ContentScale.FillBounds
             )
 
-            if (state.type == ScreenBackgroundType.SCRIM) {
+            if (state.type == ScreenBackgroundType.BLUR) {
+                Box(
+                    Modifier
+                        .size(screenWidth, screenHeight)
+                        .background(MaterialTheme.colorScheme.background.copy(alpha = 0.7f))
+                )
+            } else if (state.type == ScreenBackgroundType.SCRIM) {
                 Box(
                     Modifier
                         .size(immersiveImageWidth, immersiveImageHeight)
