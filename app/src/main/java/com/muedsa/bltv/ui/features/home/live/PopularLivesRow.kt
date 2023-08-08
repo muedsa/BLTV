@@ -2,7 +2,7 @@ package com.muedsa.bltv.ui.features.home.live
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.muedsa.bltv.model.ContentModel
 import com.muedsa.bltv.model.DemoVideo
 import com.muedsa.bltv.model.live.LiveViewModel
@@ -10,7 +10,7 @@ import com.muedsa.bltv.ui.widget.StandardImageCardsRow
 
 @Composable
 fun PopularLivesRow(
-    liveViewModel: LiveViewModel = viewModel(),
+    liveViewModel: LiveViewModel = hiltViewModel(),
     onItemFocus: (child: Int, model: DemoVideo) -> Unit,
     onItemClick: (child: Int, model: DemoVideo) -> Unit,
 ) {

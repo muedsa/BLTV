@@ -3,7 +3,7 @@ package com.muedsa.bltv.ui.features.home
 import android.content.res.Configuration
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.muedsa.bltv.model.live.LiveViewModel
 import com.muedsa.bltv.model.login.LoginViewModel
 import com.muedsa.bltv.model.video.VideoViewModel
@@ -14,9 +14,9 @@ import com.muedsa.bltv.ui.widget.rememberScreenBackgroundState
 
 @Composable
 fun HomeScreen(
-    videoViewModel: VideoViewModel = viewModel(),
-    liveViewModel: LiveViewModel = viewModel(),
-    loginViewModel: LoginViewModel = viewModel(),
+    videoViewModel: VideoViewModel = hiltViewModel(),
+    liveViewModel: LiveViewModel = hiltViewModel(),
+    loginViewModel: LoginViewModel = hiltViewModel(),
     onNavigate: (NavigationItems, List<String>?) -> Unit = { _, _ -> },
 ) {
     val backgroundState = rememberScreenBackgroundState();

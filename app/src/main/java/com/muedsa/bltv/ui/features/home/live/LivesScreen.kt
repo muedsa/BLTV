@@ -5,7 +5,7 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.tv.foundation.lazy.list.TvLazyColumn
 import com.muedsa.bltv.model.live.LiveViewModel
 import com.muedsa.bltv.ui.navigation.NavigationItems
@@ -15,7 +15,7 @@ import timber.log.Timber
 
 @Composable
 fun LiveScreen(
-    liveViewModel: LiveViewModel = viewModel(),
+    liveViewModel: LiveViewModel = hiltViewModel(),
     backgroundState: ScreenBackgroundState,
     onNavigate: (NavigationItems, List<String>?) -> Unit = { _, _ -> }
 ) {

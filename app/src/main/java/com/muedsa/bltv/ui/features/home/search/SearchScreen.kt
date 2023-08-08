@@ -22,7 +22,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.tv.foundation.lazy.list.TvLazyColumn
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.Icon
@@ -42,8 +42,8 @@ import timber.log.Timber
 @OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun SearchScreen(
-    videoViewModel: VideoViewModel = viewModel(),
-    liveViewModel: LiveViewModel = viewModel(),
+    videoViewModel: VideoViewModel = hiltViewModel(),
+    liveViewModel: LiveViewModel = hiltViewModel(),
     backgroundState: ScreenBackgroundState,
     onNavigate: (NavigationItems, List<String>?) -> Unit = { _, _ -> }
 ) {

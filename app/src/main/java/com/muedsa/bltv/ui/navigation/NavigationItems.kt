@@ -4,16 +4,16 @@ sealed class NavigationItems(
     val path: String,
     val pathParams: List<String>? = null,
 ) {
-    object Home : NavigationItems("home")
-    object VideoDetail : NavigationItems("video_detail")
+    data object Home : NavigationItems("home")
+    data object VideoDetail : NavigationItems("video_detail")
 
-    object LiveDetail : NavigationItems("live_detail")
+    data object LiveDetail : NavigationItems("live_detail")
 
-    object VideoPlayback : NavigationItems("video_playback")
+    data object VideoPlayback : NavigationItems("video_playback")
 
-    object LivePlayback : NavigationItems("live_playback")
+    data object LivePlayback : NavigationItems("live_playback")
 
-    object UpVideos : NavigationItems("up_videos/{mid}", pathParams = listOf("{mid}"))
+    data object UpVideos : NavigationItems("up_videos/{mid}", pathParams = listOf("{mid}"))
 
-    object NotFound : NavigationItems("not_found")
+    data object NotFound : NavigationItems("not_found")
 }

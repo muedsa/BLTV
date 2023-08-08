@@ -9,7 +9,7 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.tv.foundation.lazy.grid.TvGridCells
 import androidx.tv.foundation.lazy.grid.TvLazyVerticalGrid
 import androidx.tv.foundation.lazy.grid.items
@@ -28,7 +28,7 @@ import com.muedsa.bltv.ui.widget.rememberScreenBackgroundState
 @Composable
 fun UpVideosScreen(
     state: State<Long>,
-    videoViewModel: VideoViewModel = viewModel(),
+    videoViewModel: VideoViewModel = hiltViewModel(),
     onNavigate: (NavigationItems, List<String>?) -> Unit = { _, _ -> }
 ) {
 
