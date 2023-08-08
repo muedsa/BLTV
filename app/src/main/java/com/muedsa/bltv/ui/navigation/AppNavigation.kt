@@ -39,7 +39,9 @@ fun AppNavigation(navController: NavHostController) {
         }
 
         composable(NavigationItems.VideoDetail.path) {
-            VideoDetailScreen()
+            VideoDetailScreen(onNavigate = { navItem, pathParams ->
+                onNavigate(navController, navItem, pathParams)
+            })
         }
 
         composable(NavigationItems.LiveDetail.path) {

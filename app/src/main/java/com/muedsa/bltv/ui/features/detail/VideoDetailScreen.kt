@@ -37,6 +37,7 @@ import androidx.tv.material3.OutlinedButton
 import androidx.tv.material3.OutlinedButtonDefaults
 import androidx.tv.material3.Text
 import com.muedsa.bltv.model.ContentModel
+import com.muedsa.bltv.ui.navigation.NavigationItems
 import com.muedsa.bltv.ui.widget.ContentBlock
 import com.muedsa.bltv.ui.widget.ContentBlockType
 import com.muedsa.bltv.ui.widget.ScreenBackground
@@ -46,7 +47,9 @@ import com.muedsa.bltv.ui.widget.rememberScreenBackgroundState
 
 @OptIn(ExperimentalTvMaterial3Api::class, ExperimentalMaterial3Api::class)
 @Composable
-fun VideoDetailScreen() {
+fun VideoDetailScreen(
+    onNavigate: (NavigationItems, List<String>?) -> Unit = { _, _ -> }
+) {
 
     val configuration = LocalConfiguration.current
     val screenHeight = configuration.screenHeightDp.dp
@@ -167,7 +170,9 @@ fun VideoDetailScreen() {
                     }
                 }
                 Spacer(modifier = Modifier.width(40.dp))
-                Button(onClick = { /*TODO*/ }) {
+                Button(onClick = {
+                    onNavigate(NavigationItems.UpVideos, listOf("1"))
+                }) {
                     Text(text = "近期投稿")
                 }
             }
