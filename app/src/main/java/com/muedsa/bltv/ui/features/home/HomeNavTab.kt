@@ -9,12 +9,12 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.tv.material3.ExperimentalTvMaterial3Api
+import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Tab
 import androidx.tv.material3.TabDefaults
 import androidx.tv.material3.TabRow
@@ -68,11 +68,10 @@ fun HomeNavTab(
                         }
                     },
                     colors = TabDefaults.pillIndicatorTabColors(
-                        activeContentColor = Color.White,
-                        contentColor = Color.White,
-                        selectedContentColor = Color.White,
-                        focusedContentColor = Color.White,
-                        focusedSelectedContentColor = Color.White
+                        contentColor = MaterialTheme.colorScheme.onBackground,
+                        selectedContentColor = MaterialTheme.colorScheme.onBackground,
+                        focusedContentColor = MaterialTheme.colorScheme.onBackground,
+                        focusedSelectedContentColor = MaterialTheme.colorScheme.surface
                     )
                 ) {
                     Text(
