@@ -85,6 +85,9 @@ dependencies {
     implementation(libs.qrcode)
 
     implementation(libs.timber)
+
+    implementation(libs.media3)
+    implementation(libs.media3.ui)
 }
 
 kapt {

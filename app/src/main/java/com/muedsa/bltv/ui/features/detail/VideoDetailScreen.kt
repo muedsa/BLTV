@@ -84,7 +84,9 @@ fun VideoDetailScreen(
 
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Button(
-                    onClick = { /*TODO*/ },
+                    onClick = {
+                        onNavigate(NavigationItems.VideoPlayback, null)
+                    },
                     contentPadding = ButtonDefaults.ButtonWithIconContentPadding
                 ) {
                     Icon(
