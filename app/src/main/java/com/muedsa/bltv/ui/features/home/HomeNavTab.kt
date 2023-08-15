@@ -4,8 +4,10 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
@@ -30,6 +32,8 @@ import com.muedsa.bltv.ui.features.others.NotFoundScreen
 import com.muedsa.bltv.ui.navigation.NavigationItems
 import com.muedsa.bltv.ui.widget.ScreenBackgroundState
 import com.muedsa.bltv.ui.widget.ScreenBackgroundType
+import kotlinx.coroutines.delay
+import kotlin.time.Duration.Companion.milliseconds
 
 
 val tabs = listOf(
@@ -50,6 +54,14 @@ fun HomeNavTab(
     onNavigate: (NavigationItems, List<String>?) -> Unit = { _, _ -> },
 ) {
     var selectedTabIndex by rememberSaveable { mutableIntStateOf(0) }
+
+    var tabPanelIndex by remember { mutableIntStateOf(selectedTabIndex) }
+
+    LaunchedEffect(selectedTabIndex) {
+        delay(150.milliseconds)
+        tabPanelIndex = selectedTabIndex
+    }
+
     Column {
         TabRow(
             selectedTabIndex = selectedTabIndex,
@@ -84,7 +96,7 @@ fun HomeNavTab(
             }
         }
         HomeContent(
-            selectedTabIndex,
+            tabPanelIndex,
             videoViewModel,
             liveViewModel,
             loginViewModel,
