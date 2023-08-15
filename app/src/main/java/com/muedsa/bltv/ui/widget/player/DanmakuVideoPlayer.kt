@@ -24,6 +24,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.ArrowBack
 import androidx.compose.material.icons.outlined.ArrowForward
+import androidx.compose.material.icons.outlined.PlayArrow
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -32,9 +33,9 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.platform.LocalContext
@@ -98,16 +99,19 @@ fun DanmakuVideoPlayer(
         }
     }
 
-    PlayerControl(state = playerControlTicker)
+    PlayerControl(player = exoPlayer, state = playerControlTicker)
 }
 
-@kotlin.OptIn(ExperimentalTvMaterial3Api::class, ExperimentalComposeUiApi::class)
+@kotlin.OptIn(ExperimentalTvMaterial3Api::class)
 @OptIn(UnstableApi::class)
 @Composable
 fun PlayerControl(
+    player: Player,
     modifier: Modifier = Modifier,
-    state: MutableState<Int> = remember { mutableIntStateOf(0) }
+    state: MutableState<Int> = remember { mutableIntStateOf(0) },
 ) {
+    val playButtonFocusRequester = remember { FocusRequester() }
+
     LaunchedEffect(key1 = Unit) {
         while (true) {
             delay(1.seconds)
@@ -151,8 +155,8 @@ fun PlayerControl(
                     .padding(20.dp),
                 verticalArrangement = Arrangement.Bottom,
             ) {
-                // PlayerProgressIndicator()
-                Spacer(modifier = Modifier.height(10.dp))
+                PlayerProgressIndicator(player)
+                Spacer(modifier = Modifier.height(20.dp))
                 Row(
                     modifier = Modifier
                         .fillMaxWidth(),
@@ -163,22 +167,33 @@ fun PlayerControl(
                         Icon(Icons.Outlined.ArrowBack, contentDescription = "后退")
                     }
                     Spacer(modifier = Modifier.width(20.dp))
-                    OutlinedIconButton(onClick = { Timber.d("play button click") }) {
-                        //Icon(Icons.Outlined.PlayArrow, contentDescription = "播放")
-                        Icon(
-                            painterResource(R.drawable.outline_pause_24),
-                            contentDescription = "暂停"
-                        )
+                    OutlinedIconButton(
+                        modifier = Modifier.focusRequester(playButtonFocusRequester),
+                        onClick = { Timber.d("play button click") }
+                    ) {
+                        if (player.isPlaying) {
+                            Icon(
+                                painterResource(R.drawable.outline_pause_24),
+                                contentDescription = "暂停"
+                            )
+                        } else {
+                            Icon(Icons.Outlined.PlayArrow, contentDescription = "播放")
+                        }
                     }
                     Spacer(modifier = Modifier.width(20.dp))
                     OutlinedIconButton(onClick = { Timber.d("forward button click") }) {
                         Icon(Icons.Outlined.ArrowForward, contentDescription = "前进")
                     }
-                    if (EnvConfig.DEBUG) {
-                        Spacer(modifier = Modifier.width(20.dp))
-                        Text(text = state.value.toString(), color = Color.Red)
-                    }
                 }
+
+                if (EnvConfig.DEBUG) {
+                    Spacer(modifier = Modifier.height(20.dp))
+                    Text(text = "show: $state", color = Color.Red)
+                }
+            }
+
+            LaunchedEffect(key1 = Unit) {
+                playButtonFocusRequester.requestFocus()
             }
         }
     }
@@ -186,11 +201,6 @@ fun PlayerControl(
 
 @Composable
 fun PlayerProgressIndicator(player: Player) {
-    Box(modifier = Modifier
-        .focusable()
-        .onFocusChanged {
-
-        })
     if (player.duration != 0L) {
         LinearProgressIndicator(
             progress = player.currentPosition.toFloat() / player.duration,
