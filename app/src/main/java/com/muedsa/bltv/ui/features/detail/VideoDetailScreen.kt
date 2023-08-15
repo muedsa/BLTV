@@ -16,6 +16,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -24,6 +25,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.unit.dp
 import androidx.tv.foundation.lazy.list.TvLazyColumn
@@ -60,6 +63,8 @@ fun VideoDetailScreen(
         initType = ScreenBackgroundType.SCRIM
     )
 
+    val playButtonFocusRequester = remember { FocusRequester() }
+
     var expanded by remember { mutableStateOf(false) }
     val videoPlayOptions = listOf("1080P", "720P", "480P", "360P")
     var selectedVideoPlayIndex by remember { mutableIntStateOf(0) }
@@ -84,6 +89,7 @@ fun VideoDetailScreen(
 
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Button(
+                    modifier = Modifier.focusRequester(playButtonFocusRequester),
                     onClick = {
                         onNavigate(NavigationItems.VideoPlayback, null)
                     },
@@ -179,6 +185,10 @@ fun VideoDetailScreen(
                 }
             }
             Spacer(modifier = Modifier.height(40.dp))
+
+            LaunchedEffect(key1 = Unit) {
+                playButtonFocusRequester.requestFocus()
+            }
         }
     }
 }
