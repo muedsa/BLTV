@@ -6,7 +6,12 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusProperties
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.tv.foundation.lazy.list.TvLazyListState
@@ -18,7 +23,7 @@ import androidx.tv.material3.Text
 import com.muedsa.bltv.model.ContentModel
 import com.muedsa.bltv.ui.theme.BLTVTheme
 
-@OptIn(ExperimentalTvMaterial3Api::class)
+@OptIn(ExperimentalTvMaterial3Api::class, ExperimentalComposeUiApi::class)
 @Composable
 fun <T> ImageCardsRow(
     state: TvLazyListState = rememberTvLazyListState(),
@@ -29,6 +34,9 @@ fun <T> ImageCardsRow(
     onItemFocus: (index: Int, item: T) -> Unit = { _, _ -> },
     onItemClick: (index: Int, item: T) -> Unit = { _, _ -> }
 ) {
+
+    val focusRequester = remember { FocusRequester() }
+
     Column(Modifier.height(150.dp)) {
         Text(
             modifier = Modifier.padding(start = 10.dp),
@@ -38,11 +46,18 @@ fun <T> ImageCardsRow(
             maxLines = 1
         )
         TvLazyRow(
+            modifier = Modifier
+                .focusRequester(focusRequester)
+                .focusProperties {
+                    exit = { focusRequester.saveFocusedChild(); FocusRequester.Default }
+                    enter =
+                        { if (focusRequester.restoreFocusedChild()) FocusRequester.Cancel else FocusRequester.Default }
+                },
             state = state,
             contentPadding = PaddingValues(end = 100.dp)
         ) {
-            item {
-                modelList.forEachIndexed { index, it ->
+            modelList.forEachIndexed { index, it ->
+                item {
                     ImageContentCard(
                         modifier = Modifier.padding(end = 12.dp),
                         url = imageFn(it),
@@ -53,12 +68,11 @@ fun <T> ImageCardsRow(
                     )
                 }
             }
-
         }
     }
 }
 
-@OptIn(ExperimentalTvMaterial3Api::class)
+@OptIn(ExperimentalTvMaterial3Api::class, ExperimentalComposeUiApi::class)
 @Composable
 fun <T> StandardImageCardsRow(
     state: TvLazyListState = rememberTvLazyListState(),
@@ -69,6 +83,8 @@ fun <T> StandardImageCardsRow(
     onItemFocus: (index: Int, item: T) -> Unit = { _, _ -> },
     onItemClick: (index: Int, item: T) -> Unit = { _, _ -> }
 ) {
+    val focusRequester = remember { FocusRequester() }
+
     Column {
         Text(
             modifier = Modifier.padding(start = 10.dp),
@@ -78,6 +94,13 @@ fun <T> StandardImageCardsRow(
             maxLines = 1
         )
         TvLazyRow(
+            modifier = Modifier
+                .focusRequester(focusRequester)
+                .focusProperties {
+                    exit = { focusRequester.saveFocusedChild(); FocusRequester.Default }
+                    enter =
+                        { if (focusRequester.restoreFocusedChild()) FocusRequester.Cancel else FocusRequester.Default }
+                },
             state = state,
             contentPadding = PaddingValues(end = 100.dp)
         ) {

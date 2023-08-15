@@ -13,7 +13,7 @@ class LoginViewModel @Inject constructor() : ViewModel() {
 
     val loginState by _loginState
 
-    private fun checkLogin() {
+    fun checkLogin() {
         _loginState.value = LoginState.UNKNOWN
         Thread {
             Thread.sleep(300)
@@ -33,6 +33,6 @@ class LoginViewModel @Inject constructor() : ViewModel() {
     }
 
     init {
-        checkLogin()
+        // checkLogin()
     }
 }

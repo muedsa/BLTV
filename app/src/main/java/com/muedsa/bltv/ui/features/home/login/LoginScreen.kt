@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.toArgb
@@ -38,11 +39,15 @@ fun LoginScreen(
     val context = LocalContext.current
     val displayMetrics = context.resources.displayMetrics
     val imageSizePx = if (displayMetrics.widthPixels > displayMetrics.heightPixels) {
-        displayMetrics.heightPixels /  2
+        displayMetrics.heightPixels / 2
     } else {
         displayMetrics.widthPixels / 2
     }
     val loginState = loginViewModel.loginState
+
+    LaunchedEffect(key1 = Unit) {
+        loginViewModel.checkLogin()
+    }
 
     Column(
         modifier = Modifier.fillMaxSize(),
@@ -50,9 +55,9 @@ fun LoginScreen(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
 
-        if(loginState == LoginState.UNKNOWN) {
+        if (loginState == LoginState.UNKNOWN) {
             CircularProgressIndicator()
-        }else{
+        } else {
             val imageModel: Any = if (loginState == LoginState.LOGIN) {
                 "https://i2.hdslb.com/bfs/face/2dfca82d101d889c240c88d2187149240fdce65d.jpg"
             } else {
