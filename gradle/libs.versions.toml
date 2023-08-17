@@ -15,7 +15,7 @@ coil = "2.4.0"
 coil-transformers = "1.0.6"
 qrcode = "1.5.3"
 timber = "5.0.1"
-media3 = "1.1.0"
+media3 = "1.1.1"
 
 [libraries]
 core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "core-ktx" }
