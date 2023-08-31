@@ -9,10 +9,6 @@ sealed class NavigationItems(
 
     data object LiveDetail : NavigationItems("live_detail")
 
-    data object VideoPlayback : NavigationItems("video_playback")
-
-    data object LivePlayback : NavigationItems("live_playback")
-
     data object UpVideos : NavigationItems("up_videos/{mid}", pathParams = listOf("{mid}"))
 
     data object NotFound : NavigationItems("not_found")

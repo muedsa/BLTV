@@ -16,8 +16,6 @@ import com.muedsa.bltv.ui.features.detail.LiveDetailScreen
 import com.muedsa.bltv.ui.features.detail.VideoDetailScreen
 import com.muedsa.bltv.ui.features.home.HomeScreen
 import com.muedsa.bltv.ui.features.others.NotFoundScreen
-import com.muedsa.bltv.ui.features.playback.LivePlaybackScreen
-import com.muedsa.bltv.ui.features.playback.VideoPlaybackScreen
 import com.muedsa.bltv.ui.features.up.UpVideosScreen
 
 @Composable
@@ -46,14 +44,6 @@ fun AppNavigation(navController: NavHostController) {
 
         composable(NavigationItems.LiveDetail.path) {
             LiveDetailScreen()
-        }
-
-        composable(NavigationItems.VideoPlayback.path) {
-            VideoPlaybackScreen()
-        }
-
-        composable(NavigationItems.LivePlayback.path) {
-            LivePlaybackScreen()
         }
 
         composable(NavigationItems.UpVideos.path, arguments = listOf(navArgument("mid") {

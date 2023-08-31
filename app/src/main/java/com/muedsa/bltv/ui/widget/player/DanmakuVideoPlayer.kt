@@ -30,10 +30,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
@@ -53,6 +57,7 @@ import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.OutlinedIconButton
 import androidx.tv.material3.Text
 import com.muedsa.bltv.R
+import com.muedsa.bltv.ui.widget.OutlinedIconBox
 import kotlinx.coroutines.delay
 import timber.log.Timber
 import kotlin.time.Duration.Companion.seconds
@@ -111,6 +116,8 @@ fun PlayerControl(
     state: MutableState<Int> = remember { mutableIntStateOf(0) },
 ) {
     val playButtonFocusRequester = remember { FocusRequester() }
+    var leftArrowBtnPressed by remember { mutableStateOf(false) }
+    var rightArrowBtnPressed by remember { mutableStateOf(false) }
 
     LaunchedEffect(key1 = Unit) {
         while (true) {
@@ -139,6 +146,19 @@ fun PlayerControl(
                     state.value = 5
                 }
             }
+            if (it.nativeKeyEvent.keyCode == KeyEvent.KEYCODE_DPAD_LEFT) {
+                if (it.nativeKeyEvent.action == KeyEvent.ACTION_DOWN) {
+                    leftArrowBtnPressed = true
+                } else if (it.nativeKeyEvent.action == KeyEvent.ACTION_UP) {
+                    leftArrowBtnPressed = false
+                }
+            } else if (it.nativeKeyEvent.keyCode == KeyEvent.KEYCODE_DPAD_RIGHT) {
+                if (it.nativeKeyEvent.action == KeyEvent.ACTION_DOWN) {
+                    rightArrowBtnPressed = true
+                } else if (it.nativeKeyEvent.action == KeyEvent.ACTION_UP) {
+                    rightArrowBtnPressed = false
+                }
+            }
             return@onPreviewKeyEvent false
         }
         .fillMaxSize()
@@ -163,7 +183,7 @@ fun PlayerControl(
                     horizontalArrangement = Arrangement.Center,
                     verticalAlignment = Alignment.Bottom
                 ) {
-                    OutlinedIconButton(onClick = { Timber.d("back button click") }) {
+                    OutlinedIconBox(modifier = Modifier.scale(if (leftArrowBtnPressed) 1.1f else 1f)) {
                         Icon(Icons.Outlined.ArrowBack, contentDescription = "后退")
                     }
                     Spacer(modifier = Modifier.width(20.dp))
@@ -181,7 +201,7 @@ fun PlayerControl(
                         }
                     }
                     Spacer(modifier = Modifier.width(20.dp))
-                    OutlinedIconButton(onClick = { Timber.d("forward button click") }) {
+                    OutlinedIconBox(modifier = Modifier.scale(if (rightArrowBtnPressed) 1.1f else 1f)) {
                         Icon(Icons.Outlined.ArrowForward, contentDescription = "前进")
                     }
                 }

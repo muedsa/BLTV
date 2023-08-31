@@ -1,5 +1,6 @@
 package com.muedsa.bltv.ui.features.detail
 
+import android.content.Intent
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -28,6 +29,7 @@ import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.tv.foundation.lazy.list.TvLazyColumn
 import androidx.tv.material3.Border
@@ -39,6 +41,7 @@ import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.OutlinedButton
 import androidx.tv.material3.OutlinedButtonDefaults
 import androidx.tv.material3.Text
+import com.muedsa.bltv.PlaybackActivity
 import com.muedsa.bltv.model.ContentModel
 import com.muedsa.bltv.ui.navigation.NavigationItems
 import com.muedsa.bltv.ui.widget.ContentBlock
@@ -53,6 +56,7 @@ import com.muedsa.bltv.ui.widget.rememberScreenBackgroundState
 fun VideoDetailScreen(
     onNavigate: (NavigationItems, List<String>?) -> Unit = { _, _ -> }
 ) {
+    val context = LocalContext.current
 
     val configuration = LocalConfiguration.current
     val screenHeight = configuration.screenHeightDp.dp
@@ -91,7 +95,7 @@ fun VideoDetailScreen(
                 Button(
                     modifier = Modifier.focusRequester(playButtonFocusRequester),
                     onClick = {
-                        onNavigate(NavigationItems.VideoPlayback, null)
+                        context.startActivity(Intent(context, PlaybackActivity::class.java))
                     },
                     contentPadding = ButtonDefaults.ButtonWithIconContentPadding
                 ) {
