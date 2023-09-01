@@ -56,10 +56,14 @@ import androidx.tv.material3.Icon
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.OutlinedIconButton
 import androidx.tv.material3.Text
+import com.kuaishou.akdanmaku.DanmakuConfig
+import com.kuaishou.akdanmaku.data.DanmakuItemData
+import com.kuaishou.akdanmaku.render.SimpleRenderer
+import com.kuaishou.akdanmaku.ui.DanmakuPlayer
+import com.kuaishou.akdanmaku.ui.DanmakuView
 import com.muedsa.bltv.R
 import com.muedsa.bltv.ui.widget.OutlinedIconBox
 import kotlinx.coroutines.delay
-import timber.log.Timber
 import kotlin.time.Duration.Companion.seconds
 
 @SuppressLint("OpaqueUnitKey")
@@ -73,10 +77,28 @@ fun DanmakuVideoPlayer(
 
     val playerControlTicker = remember { mutableIntStateOf(0) }
 
+    val danmakuConfig = remember {
+        DanmakuConfig()
+    }
+
+    val danmakuPlayer = remember {
+        DanmakuPlayer(SimpleRenderer())
+    }
+
     val exoPlayer = remember {
         ExoPlayer.Builder(context).build()
             .apply {
                 playerApply()
+                addListener(object : Player.Listener {
+                    override fun onIsPlayingChanged(isPlaying: Boolean) {
+                        if (isPlaying) {
+                            danmakuPlayer.seekTo(this@apply.currentPosition)
+                            danmakuPlayer.start(danmakuConfig)
+                        } else {
+                            danmakuPlayer.pause()
+                        }
+                    }
+                })
             }
     }
 
@@ -97,10 +119,36 @@ fun DanmakuVideoPlayer(
                     FrameLayout.LayoutParams.MATCH_PARENT
                 )
             }
+            DanmakuView(context).apply {
+                layoutParams = FrameLayout.LayoutParams(
+                    FrameLayout.LayoutParams.MATCH_PARENT,
+                    FrameLayout.LayoutParams.MATCH_PARENT
+                )
+            }.also {
+                danmakuPlayer.bindView(it)
+                val danmakuDataList = mutableListOf<DanmakuItemData>()
+                for (i in 1..100) {
+                    danmakuDataList.add(
+                        DanmakuItemData(
+                            danmakuId = i.toLong(),
+                            position = 1000L + i.toLong() * 500,
+                            content = "hahaha$i",
+                            mode = DanmakuItemData.DANMAKU_MODE_ROLLING,
+                            textSize = 25,
+                            textColor = android.graphics.Color.WHITE,
+                            score = 9,
+                            danmakuStyle = DanmakuItemData.DANMAKU_STYLE_NONE,
+                            rank = 9
+                        )
+                    )
+                }
+                danmakuPlayer.updateData(danmakuDataList)
+            }
         })
     ) {
         onDispose {
             exoPlayer.release()
+            danmakuPlayer.release()
         }
     }
 
@@ -151,12 +199,14 @@ fun PlayerControl(
                     leftArrowBtnPressed = true
                 } else if (it.nativeKeyEvent.action == KeyEvent.ACTION_UP) {
                     leftArrowBtnPressed = false
+                    player.seekBack()
                 }
             } else if (it.nativeKeyEvent.keyCode == KeyEvent.KEYCODE_DPAD_RIGHT) {
                 if (it.nativeKeyEvent.action == KeyEvent.ACTION_DOWN) {
                     rightArrowBtnPressed = true
                 } else if (it.nativeKeyEvent.action == KeyEvent.ACTION_UP) {
                     rightArrowBtnPressed = false
+                    player.seekForward()
                 }
             }
             return@onPreviewKeyEvent false
@@ -189,7 +239,13 @@ fun PlayerControl(
                     Spacer(modifier = Modifier.width(20.dp))
                     OutlinedIconButton(
                         modifier = Modifier.focusRequester(playButtonFocusRequester),
-                        onClick = { Timber.d("play button click") }
+                        onClick = {
+                            if (player.isPlaying) {
+                                player.pause()
+                            } else {
+                                player.play()
+                            }
+                        }
                     ) {
                         if (player.isPlaying) {
                             Icon(
