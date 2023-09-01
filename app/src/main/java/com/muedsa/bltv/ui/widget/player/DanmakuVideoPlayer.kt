@@ -57,7 +57,6 @@ import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.OutlinedIconButton
 import androidx.tv.material3.Text
 import com.kuaishou.akdanmaku.DanmakuConfig
-import com.kuaishou.akdanmaku.data.DanmakuItemData
 import com.kuaishou.akdanmaku.render.SimpleRenderer
 import com.kuaishou.akdanmaku.ui.DanmakuPlayer
 import com.kuaishou.akdanmaku.ui.DanmakuView
@@ -70,7 +69,8 @@ import kotlin.time.Duration.Companion.seconds
 @OptIn(UnstableApi::class)
 @Composable
 fun DanmakuVideoPlayer(
-    playerApply: ExoPlayer.() -> Unit
+    videoPlayerRun: (ExoPlayer) -> Unit,
+    danmakuPlayerRun: (DanmakuPlayer) -> Unit
 ) {
 
     val context = LocalContext.current
@@ -78,7 +78,9 @@ fun DanmakuVideoPlayer(
     val playerControlTicker = remember { mutableIntStateOf(0) }
 
     val danmakuConfig = remember {
-        DanmakuConfig()
+        DanmakuConfig().apply {
+            textSizeScale = 1.4f
+        }
     }
 
     val danmakuPlayer = remember {
@@ -87,12 +89,12 @@ fun DanmakuVideoPlayer(
 
     val exoPlayer = remember {
         ExoPlayer.Builder(context).build()
-            .apply {
-                playerApply()
-                addListener(object : Player.Listener {
+            .also {
+                videoPlayerRun(it)
+                it.addListener(object : Player.Listener {
                     override fun onIsPlayingChanged(isPlaying: Boolean) {
                         if (isPlaying) {
-                            danmakuPlayer.seekTo(this@apply.currentPosition)
+                            danmakuPlayer.seekTo(it.currentPosition)
                             danmakuPlayer.start(danmakuConfig)
                         } else {
                             danmakuPlayer.pause()
@@ -107,44 +109,33 @@ fun DanmakuVideoPlayer(
     }
 
     DisposableEffect(
-        AndroidView(factory = {
-            PlayerView(context).apply {
-                hideController()
-                useController = false
-                resizeMode = AspectRatioFrameLayout.RESIZE_MODE_ZOOM
+        Box(modifier = Modifier.fillMaxSize()) {
+            AndroidView(factory = {
+                PlayerView(context).apply {
+                    hideController()
+                    useController = false
+                    resizeMode = AspectRatioFrameLayout.RESIZE_MODE_ZOOM
 
-                player = exoPlayer
-                layoutParams = FrameLayout.LayoutParams(
-                    FrameLayout.LayoutParams.MATCH_PARENT,
-                    FrameLayout.LayoutParams.MATCH_PARENT
-                )
-            }
-            DanmakuView(context).apply {
-                layoutParams = FrameLayout.LayoutParams(
-                    FrameLayout.LayoutParams.MATCH_PARENT,
-                    FrameLayout.LayoutParams.MATCH_PARENT
-                )
-            }.also {
-                danmakuPlayer.bindView(it)
-                val danmakuDataList = mutableListOf<DanmakuItemData>()
-                for (i in 1..100) {
-                    danmakuDataList.add(
-                        DanmakuItemData(
-                            danmakuId = i.toLong(),
-                            position = 1000L + i.toLong() * 500,
-                            content = "hahaha$i",
-                            mode = DanmakuItemData.DANMAKU_MODE_ROLLING,
-                            textSize = 25,
-                            textColor = android.graphics.Color.WHITE,
-                            score = 9,
-                            danmakuStyle = DanmakuItemData.DANMAKU_STYLE_NONE,
-                            rank = 9
-                        )
+                    player = exoPlayer
+                    layoutParams = FrameLayout.LayoutParams(
+                        FrameLayout.LayoutParams.MATCH_PARENT,
+                        FrameLayout.LayoutParams.MATCH_PARENT
                     )
                 }
-                danmakuPlayer.updateData(danmakuDataList)
-            }
-        })
+            })
+            AndroidView(factory = {
+                DanmakuView(context).apply {
+                    layoutParams = FrameLayout.LayoutParams(
+                        FrameLayout.LayoutParams.MATCH_PARENT,
+                        FrameLayout.LayoutParams.MATCH_PARENT
+                    )
+                }.also {
+                    danmakuPlayer.bindView(it)
+                    danmakuPlayerRun(danmakuPlayer)
+                }
+            })
+        }
+
     ) {
         onDispose {
             exoPlayer.release()
