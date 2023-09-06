@@ -19,7 +19,9 @@ fun HomeScreen(
     loginViewModel: LoginViewModel = hiltViewModel(),
     onNavigate: (NavigationItems, List<String>?) -> Unit = { _, _ -> },
 ) {
-    val backgroundState = rememberScreenBackgroundState();
+    val backgroundState = rememberScreenBackgroundState(
+        initHeaders = mapOf("Referer" to "https://www.bilibili.com")
+    );
     ScreenBackground(state = backgroundState)
     HomeNavTab(
         videoViewModel = videoViewModel,

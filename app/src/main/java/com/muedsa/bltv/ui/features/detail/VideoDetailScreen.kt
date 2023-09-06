@@ -63,8 +63,9 @@ fun VideoDetailScreen(
     val screenWidth = configuration.screenWidthDp.dp
 
     val backgroundState = rememberScreenBackgroundState(
-        initUrl = "http://i1.hdslb.com/bfs/archive/3f80e62fd5e026eb9fba85cf435200697afe43cc.jpg",
-        initType = ScreenBackgroundType.SCRIM
+        initUrl = "https://i1.hdslb.com/bfs/archive/3f80e62fd5e026eb9fba85cf435200697afe43cc.jpg",
+        initType = ScreenBackgroundType.SCRIM,
+        initHeaders = mapOf("Referer" to "https://www.bilibili.com")
     )
 
     val playButtonFocusRequester = remember { FocusRequester() }

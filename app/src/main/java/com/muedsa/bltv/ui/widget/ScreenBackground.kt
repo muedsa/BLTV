@@ -8,9 +8,10 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.Saver
-import androidx.compose.runtime.saveable.listSaver
+import androidx.compose.runtime.saveable.mapSaver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
@@ -33,33 +34,37 @@ import jp.wasabeef.transformers.coil.BlurTransformation
 fun ScreenBackground(
     state: ScreenBackgroundState = rememberScreenBackgroundState()
 ) {
-    val context = LocalContext.current
-    val configuration = LocalConfiguration.current
-    val screenWidth  = configuration.screenWidthDp.dp
-    val screenHeight = configuration.screenHeightDp.dp
-    val immersiveImageHeight = screenHeight * 8 / 10
-    val immersiveImageWidth = immersiveImageHeight * 16 / 9
-    val immersiveImageOffsetX = screenWidth - immersiveImageWidth
-    val imageModifier = if (state.type == ScreenBackgroundType.SCRIM) {
-        Modifier
-            .size(immersiveImageWidth, immersiveImageHeight)
-            .offset(x = immersiveImageOffsetX)
-    } else {
-        Modifier.size(screenWidth, screenHeight)
-    }
-
     if (!state.url.isNullOrEmpty()) {
-        val imageRequestBuilder = ImageRequest.Builder(context)
-            .data(state.url)
-        if (state.type == ScreenBackgroundType.BLUR) {
-            imageRequestBuilder.transformations(
-                BlurTransformation(context = context, radius = 25),
-            )
+        val context = LocalContext.current
+        val configuration = LocalConfiguration.current
+        val screenWidth = configuration.screenWidthDp.dp
+        val screenHeight = configuration.screenHeightDp.dp
+        val immersiveImageHeight = screenHeight * 8 / 10
+        val immersiveImageWidth = immersiveImageHeight * 16 / 9
+        val immersiveImageOffsetX = screenWidth - immersiveImageWidth
+        val imageModifier = if (state.type == ScreenBackgroundType.SCRIM) {
+            Modifier
+                .size(immersiveImageWidth, immersiveImageHeight)
+                .offset(x = immersiveImageOffsetX)
+        } else {
+            Modifier.size(screenWidth, screenHeight)
         }
+        val imageRequest = ImageRequest.Builder(context).data(state.url).also {
+            if (state.type == ScreenBackgroundType.BLUR) {
+                it.transformations(
+                    BlurTransformation(context = context, radius = 25),
+                )
+            }
+            if (!state.headers.isEmpty()) {
+                state.headers.forEach { entry ->
+                    it.addHeader(entry.key, entry.value)
+                }
+            }
+        }.build()
 
         Box(Modifier.fillMaxSize()) {
             AsyncImage(
-                model = imageRequestBuilder.build(),
+                model = imageRequest,
                 contentDescription = null,
                 modifier = imageModifier,
                 contentScale = ContentScale.FillBounds
@@ -105,18 +110,33 @@ fun ScreenBackground(
 @Stable
 class ScreenBackgroundState(
     initUrl: String? = null,
-    initType: ScreenBackgroundType = ScreenBackgroundType.BLUR
+    initType: ScreenBackgroundType = ScreenBackgroundType.BLUR,
+    initHeaders: Map<String, String> = mapOf()
 ) {
     var url by mutableStateOf(initUrl)
     var type by mutableStateOf(initType)
+    val headers = mutableStateMapOf(*initHeaders.toList().toTypedArray())
 
     companion object {
-        val Saver: Saver<ScreenBackgroundState, *> = listSaver(
-            save = { listOf(it.url, it.type) },
+        private const val SAVER_KEY_URL = "SAVER_KEY_URL"
+        private const val SAVER_KEY_TYPE = "SAVER_KEY_TYPE"
+
+        val Saver: Saver<ScreenBackgroundState, *> = mapSaver(
+            save = {
+                mutableMapOf<String, Any?>().apply {
+                    put(SAVER_KEY_URL, it.url)
+                    put(SAVER_KEY_TYPE, it.type)
+                    putAll(it.headers)
+                }
+            },
             restore = {
+                @Suppress("UNCHECKED_CAST")
                 ScreenBackgroundState(
-                    initUrl = it[0] as String?,
-                    initType = it[1] as ScreenBackgroundType
+                    initUrl = it[SAVER_KEY_URL] as String?,
+                    initType = it[SAVER_KEY_TYPE] as ScreenBackgroundType,
+                    initHeaders = it.filterKeys { key ->
+                        SAVER_KEY_URL != key && SAVER_KEY_TYPE != key
+                    } as Map<String, String>
                 )
             }
         )
@@ -126,12 +146,14 @@ class ScreenBackgroundState(
 @Composable
 fun rememberScreenBackgroundState(
     initUrl: String? = null,
-    initType: ScreenBackgroundType = ScreenBackgroundType.BLUR
+    initType: ScreenBackgroundType = ScreenBackgroundType.BLUR,
+    initHeaders: Map<String, String> = mapOf()
 ): ScreenBackgroundState {
     return rememberSaveable(saver = ScreenBackgroundState.Saver) {
         ScreenBackgroundState(
             initUrl = initUrl,
-            initType = initType
+            initType = initType,
+            initHeaders = initHeaders
         )
     }
 }
