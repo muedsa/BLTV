@@ -36,7 +36,7 @@
             android:name=".PlaybackActivity"
             android:exported="true"
             android:label="@string/title_activity_main"
-            android:theme="@style/Theme.BLTV"></activity>
+            android:theme="@style/Theme.BLTV" />
     </application>
 
 </manifest>
