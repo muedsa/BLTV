@@ -37,6 +37,8 @@ fun <T> ImageCardsRow(
 
     val focusRequester = remember { FocusRequester() }
 
+    val firstItemFocusRequester = remember { FocusRequester() }
+
     Column(Modifier.height(150.dp)) {
         Text(
             modifier = Modifier.padding(start = 10.dp),
@@ -50,16 +52,25 @@ fun <T> ImageCardsRow(
                 .focusRequester(focusRequester)
                 .focusProperties {
                     exit = { focusRequester.saveFocusedChild(); FocusRequester.Default }
-                    enter =
-                        { if (focusRequester.restoreFocusedChild()) FocusRequester.Cancel else FocusRequester.Default }
+                    enter = {
+                        if (focusRequester.restoreFocusedChild()) {
+                            FocusRequester.Cancel
+                        } else {
+                            firstItemFocusRequester
+                        }
+                    }
                 },
             state = state,
             contentPadding = PaddingValues(end = 100.dp)
         ) {
             modelList.forEachIndexed { index, it ->
+                var modifier = Modifier.padding(end = 12.dp)
+                if (index == 0) {
+                    modifier = modifier.focusRequester(firstItemFocusRequester)
+                }
                 item {
                     ImageContentCard(
-                        modifier = Modifier.padding(end = 12.dp),
+                        modifier = modifier,
                         url = imageFn(it),
                         type = CardType.COMPACT,
                         model = contentFn(it),
