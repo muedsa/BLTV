@@ -90,6 +90,9 @@ dependencies {
     implementation(libs.media3.ui)
 
     implementation(libs.akdanmaku)
+
+    implementation(libs.datastore.preferences)
+    implementation(libs.datastore.preferences.rxjava3)
 }
 
 kapt {

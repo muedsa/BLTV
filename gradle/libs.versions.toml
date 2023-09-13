@@ -17,6 +17,7 @@ qrcode = "1.5.3"
 timber = "5.0.1"
 media3 = "1.1.1"
 akdanmaku = "1.0.3"
+datastore = "1.1.0-alpha01"
 
 [libraries]
 core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "core-ktx" }
@@ -48,6 +49,8 @@ timber = { group = "com.jakewharton.timber", name = "timber", version.ref = "tim
 media3 = { group = "androidx.media3", name = "media3-exoplayer", version.ref = "media3" }
 media3-ui = { group = "androidx.media3", name = "media3-ui", version.ref = "media3" }
 akdanmaku = { group = "com.kuaishou", name = "akdanmaku", version.ref = "akdanmaku" }
+datastore-preferences = { group = "androidx.datastore", name = "datastore-preferences", version.ref = "datastore" }
+datastore-preferences-rxjava3 = { group = "androidx.datastore", name = "datastore-preferences-rxjava3", version.ref = "datastore" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
