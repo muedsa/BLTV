@@ -17,7 +17,7 @@ qrcode = "1.5.3"
 timber = "5.0.1"
 media3 = "1.1.1"
 akdanmaku = "1.0.3"
-datastore = "1.1.0-alpha01"
+datastore = "1.1.0-dev01"
 
 [libraries]
 core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "core-ktx" }
