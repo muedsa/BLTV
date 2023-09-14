@@ -22,7 +22,6 @@
         <activity
             android:name=".MainActivity"
             android:exported="true"
-            android:label="@string/title_activity_main"
             android:theme="@style/Theme.SplashScreenTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -35,7 +34,6 @@
         <activity
             android:name=".PlaybackActivity"
             android:exported="true"
-            android:label="@string/title_activity_main"
             android:theme="@style/Theme.BLTV" />
     </application>
 
