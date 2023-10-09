@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateMapOf
@@ -21,62 +22,99 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.MaterialTheme
-import coil.compose.AsyncImage
+import coil.compose.SubcomposeAsyncImage
 import coil.request.ImageRequest
 import com.muedsa.compose.tv.theme.TvTheme
 import jp.wasabeef.transformers.coil.BlurTransformation
+import kotlinx.coroutines.delay
+import timber.log.Timber
+import kotlin.time.Duration.Companion.milliseconds
 
 @OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun ScreenBackground(
     state: ScreenBackgroundState = rememberScreenBackgroundState()
 ) {
-    if (!state.url.isNullOrEmpty()) {
+    val delayState = rememberScreenBackgroundState(
+        initUrl = state.url,
+        initType = state.type,
+        initHeaders = state.headers
+    )
+
+    LaunchedEffect(key1 = state.url, key2 = state.type, key3 = state.headers) {
+        delay(300.milliseconds)
+        delayState.url = state.url
+        delayState.type = state.type
+        delayState.headers.apply {
+            clear()
+            putAll(state.headers)
+        }
+    }
+
+    if (!delayState.url.isNullOrEmpty()) {
         val context = LocalContext.current
         val configuration = LocalConfiguration.current
         val screenWidth = configuration.screenWidthDp.dp
         val screenHeight = configuration.screenHeightDp.dp
-        val immersiveImageHeight = screenHeight * 8 / 10
-        val immersiveImageWidth = immersiveImageHeight * 16 / 9
-        val immersiveImageOffsetX = screenWidth - immersiveImageWidth
-        val imageModifier = if (state.type == ScreenBackgroundType.SCRIM) {
+        val horizontal = screenWidth > screenHeight
+
+        val immersiveImageWidth: Dp
+        val immersiveImageHeight: Dp
+        val immersiveImageOffsetX: Dp
+        if (horizontal) {
+            immersiveImageHeight = screenHeight * 8 / 10
+            immersiveImageWidth = immersiveImageHeight * 16 / 9
+            immersiveImageOffsetX = screenWidth - immersiveImageWidth
+        } else {
+            immersiveImageWidth = screenWidth
+            immersiveImageHeight = screenHeight * 8 / 10
+            immersiveImageOffsetX = 0.dp
+        }
+        val imageModifier = if (delayState.type == ScreenBackgroundType.SCRIM) {
             Modifier
                 .size(immersiveImageWidth, immersiveImageHeight)
                 .offset(x = immersiveImageOffsetX)
         } else {
             Modifier.size(screenWidth, screenHeight)
         }
-        val imageRequest = ImageRequest.Builder(context).data(state.url).also {
-            if (state.type == ScreenBackgroundType.BLUR) {
-                it.transformations(
-                    BlurTransformation(context = context, radius = 25),
-                )
-            }
-            if (!state.headers.isEmpty()) {
-                state.headers.forEach { entry ->
-                    it.addHeader(entry.key, entry.value)
+        val imageRequest = ImageRequest.Builder(context)
+            .data(delayState.url)
+            .crossfade(true)
+            .listener(onError = { _, result ->
+                Timber.d(result.throwable, "loading image error")
+            })
+            .also {
+                if (delayState.type == ScreenBackgroundType.BLUR) {
+                    it.transformations(
+                        BlurTransformation(context = context, radius = 25),
+                    )
                 }
-            }
-        }.build()
+                if (!delayState.headers.isEmpty()) {
+                    delayState.headers.forEach { entry ->
+                        it.addHeader(entry.key, entry.value)
+                    }
+                }
+            }.build()
 
         Box(Modifier.fillMaxSize()) {
-            AsyncImage(
+            SubcomposeAsyncImage(
                 model = imageRequest,
                 contentDescription = null,
                 modifier = imageModifier,
-                contentScale = ContentScale.FillBounds
+                contentScale = if (horizontal) ContentScale.FillWidth else ContentScale.Crop
             )
 
-            if (state.type == ScreenBackgroundType.BLUR) {
+            if (delayState.type == ScreenBackgroundType.BLUR) {
                 Box(
                     Modifier
                         .size(screenWidth, screenHeight)
                         .background(MaterialTheme.colorScheme.background.copy(alpha = 0.7f))
                 )
-            } else if (state.type == ScreenBackgroundType.SCRIM) {
+            } else if (delayState.type == ScreenBackgroundType.SCRIM) {
                 Box(
                     Modifier
                         .size(immersiveImageWidth, immersiveImageHeight)

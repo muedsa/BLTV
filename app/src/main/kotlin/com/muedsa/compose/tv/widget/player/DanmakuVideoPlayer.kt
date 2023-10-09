@@ -1,7 +1,7 @@
 package com.muedsa.compose.tv.widget.player
 
-import EnvConfig
 import android.annotation.SuppressLint
+import android.view.Gravity
 import android.view.KeyEvent
 import android.widget.FrameLayout
 import androidx.activity.compose.BackHandler
@@ -38,38 +38,37 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.scale
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
-import androidx.media3.common.PlaybackException
 import androidx.media3.common.Player
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.exoplayer.ExoPlayer
+import androidx.media3.exoplayer.util.EventLogger
 import androidx.media3.ui.AspectRatioFrameLayout
 import androidx.media3.ui.PlayerView
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.Icon
 import androidx.tv.material3.MaterialTheme
-import androidx.tv.material3.OutlinedIconButton
 import androidx.tv.material3.Text
 import com.kuaishou.akdanmaku.DanmakuConfig
 import com.kuaishou.akdanmaku.render.SimpleRenderer
 import com.kuaishou.akdanmaku.ui.DanmakuPlayer
 import com.kuaishou.akdanmaku.ui.DanmakuView
-import com.muedsa.bltv.ui.features.others.FillTextScreen
 import com.muedsa.compose.tv.widget.OutlinedIconBox
 import kotlinx.coroutines.delay
 import kotlin.time.Duration.Companion.seconds
+import kotlin.time.DurationUnit
+import kotlin.time.toDuration
 
 @SuppressLint("OpaqueUnitKey")
 @OptIn(UnstableApi::class)
 @Composable
 fun DanmakuVideoPlayer(
+    debug: Boolean = false,
     videoPlayerInit: ExoPlayer.() -> Unit,
     danmakuPlayerInit: DanmakuPlayer.() -> Unit
 ) {
@@ -88,12 +87,13 @@ fun DanmakuVideoPlayer(
         DanmakuPlayer(SimpleRenderer())
     }
 
-    var errorMsg by remember { mutableStateOf<String?>(null) }
-
     val exoPlayer = remember {
-        ExoPlayer.Builder(context).build()
+        ExoPlayer.Builder(context)
+            .build()
             .also {
-                it.videoPlayerInit()
+                if (debug) {
+                    it.addAnalyticsListener(EventLogger())
+                }
                 it.addListener(object : Player.Listener {
                     override fun onIsPlayingChanged(isPlaying: Boolean) {
                         if (isPlaying) {
@@ -103,11 +103,8 @@ fun DanmakuVideoPlayer(
                             danmakuPlayer.pause()
                         }
                     }
-
-                    override fun onPlayerErrorChanged(error: PlaybackException?) {
-                        errorMsg = error?.localizedMessage
-                    }
                 })
+                it.videoPlayerInit()
             }
     }
 
@@ -121,12 +118,12 @@ fun DanmakuVideoPlayer(
                 PlayerView(context).apply {
                     hideController()
                     useController = false
-                    resizeMode = AspectRatioFrameLayout.RESIZE_MODE_ZOOM
-
+                    resizeMode = AspectRatioFrameLayout.RESIZE_MODE_FIT
                     player = exoPlayer
                     layoutParams = FrameLayout.LayoutParams(
                         FrameLayout.LayoutParams.MATCH_PARENT,
-                        FrameLayout.LayoutParams.MATCH_PARENT
+                        FrameLayout.LayoutParams.MATCH_PARENT,
+                        Gravity.CENTER
                     )
                 }
             })
@@ -150,34 +147,27 @@ fun DanmakuVideoPlayer(
         }
     }
 
-    PlayerControl(player = exoPlayer, state = playerControlTicker)
-
-    if (!errorMsg.isNullOrEmpty()) {
-        FillTextScreen(errorMsg!!)
-    }
+    PlayerControl(debug = debug, player = exoPlayer, state = playerControlTicker)
 }
 
 @SuppressLint("OpaqueUnitKey")
 @OptIn(UnstableApi::class)
 @Composable
 fun SimpleVideoPlayer(
+    debug: Boolean = false,
     init: ExoPlayer.() -> Unit
 ) {
     val context = LocalContext.current
 
     val playerControlTicker = remember { mutableIntStateOf(0) }
 
-    var errorMsg by remember { mutableStateOf<String?>(null) }
-
     val exoPlayer = remember {
         ExoPlayer.Builder(context).build()
             .also {
+                if (debug) {
+                    it.addAnalyticsListener(EventLogger())
+                }
                 it.init()
-                it.addListener(object : Player.Listener {
-                    override fun onPlayerErrorChanged(error: PlaybackException?) {
-                        errorMsg = error?.localizedMessage
-                    }
-                })
             }
     }
 
@@ -190,12 +180,12 @@ fun SimpleVideoPlayer(
             PlayerView(context).apply {
                 hideController()
                 useController = false
-                resizeMode = AspectRatioFrameLayout.RESIZE_MODE_ZOOM
-
+                resizeMode = AspectRatioFrameLayout.RESIZE_MODE_FIT
                 player = exoPlayer
                 layoutParams = FrameLayout.LayoutParams(
                     FrameLayout.LayoutParams.MATCH_PARENT,
-                    FrameLayout.LayoutParams.MATCH_PARENT
+                    FrameLayout.LayoutParams.MATCH_PARENT,
+                    Gravity.CENTER
                 )
             }
         })
@@ -205,24 +195,21 @@ fun SimpleVideoPlayer(
         }
     }
 
-    PlayerControl(player = exoPlayer, state = playerControlTicker)
-
-    if (!errorMsg.isNullOrEmpty()) {
-        FillTextScreen(errorMsg!!)
-    }
+    PlayerControl(debug = debug, player = exoPlayer, state = playerControlTicker)
 }
 
 @kotlin.OptIn(ExperimentalTvMaterial3Api::class)
 @OptIn(UnstableApi::class)
 @Composable
 fun PlayerControl(
-    player: Player,
     modifier: Modifier = Modifier,
+    debug: Boolean = false,
+    player: Player,
     state: MutableState<Int> = remember { mutableIntStateOf(0) },
 ) {
-    val playButtonFocusRequester = remember { FocusRequester() }
     var leftArrowBtnPressed by remember { mutableStateOf(false) }
     var rightArrowBtnPressed by remember { mutableStateOf(false) }
+    var playBtnPressed by remember { mutableStateOf(false) }
 
     LaunchedEffect(key1 = Unit) {
         while (true) {
@@ -265,6 +252,35 @@ fun PlayerControl(
                     rightArrowBtnPressed = false
                     player.seekForward()
                 }
+            } else if (it.nativeKeyEvent.keyCode == KeyEvent.KEYCODE_DPAD_CENTER) {
+                if (it.nativeKeyEvent.action == KeyEvent.ACTION_DOWN) {
+                    playBtnPressed = true
+                } else if (it.nativeKeyEvent.action == KeyEvent.ACTION_UP) {
+                    playBtnPressed = false
+                    if (player.isPlaying) {
+                        player.pause()
+                    } else {
+                        player.play()
+                    }
+                }
+            } else if (it.nativeKeyEvent.keyCode == KeyEvent.KEYCODE_MEDIA_PLAY) {
+                if (it.nativeKeyEvent.action == KeyEvent.ACTION_DOWN) {
+                    playBtnPressed = true
+                } else if (it.nativeKeyEvent.action == KeyEvent.ACTION_UP) {
+                    playBtnPressed = false
+                    if (!player.isPlaying) {
+                        player.play()
+                    }
+                }
+            } else if (it.nativeKeyEvent.keyCode == KeyEvent.KEYCODE_MEDIA_PAUSE) {
+                if (it.nativeKeyEvent.action == KeyEvent.ACTION_DOWN) {
+                    playBtnPressed = true
+                } else if (it.nativeKeyEvent.action == KeyEvent.ACTION_UP) {
+                    playBtnPressed = false
+                    if (player.isPlaying) {
+                        player.pause()
+                    }
+                }
             }
             return@onPreviewKeyEvent false
         }
@@ -290,19 +306,13 @@ fun PlayerControl(
                     horizontalArrangement = Arrangement.Center,
                     verticalAlignment = Alignment.Bottom
                 ) {
-                    OutlinedIconBox(modifier = Modifier.scale(if (leftArrowBtnPressed) 1.1f else 1f)) {
+                    OutlinedIconBox(scaleUp = leftArrowBtnPressed) {
                         Icon(Icons.Outlined.ArrowBack, contentDescription = "后退")
                     }
                     Spacer(modifier = Modifier.width(20.dp))
-                    OutlinedIconButton(
-                        modifier = Modifier.focusRequester(playButtonFocusRequester),
-                        onClick = {
-                            if (player.isPlaying) {
-                                player.pause()
-                            } else {
-                                player.play()
-                            }
-                        }
+                    OutlinedIconBox(
+                        scaleUp = playBtnPressed,
+                        inverse = true
                     ) {
                         if (player.isPlaying) {
                             Icon(
@@ -314,32 +324,69 @@ fun PlayerControl(
                         }
                     }
                     Spacer(modifier = Modifier.width(20.dp))
-                    OutlinedIconBox(modifier = Modifier.scale(if (rightArrowBtnPressed) 1.1f else 1f)) {
+                    OutlinedIconBox(scaleUp = rightArrowBtnPressed) {
                         Icon(Icons.Outlined.ArrowForward, contentDescription = "前进")
                     }
                 }
 
-                if (EnvConfig.DEBUG) {
+                if (debug) {
                     Spacer(modifier = Modifier.height(20.dp))
                     Text(text = "show: $state", color = Color.Red)
                 }
-            }
-
-            LaunchedEffect(key1 = Unit) {
-                playButtonFocusRequester.requestFocus()
             }
         }
     }
 }
 
+@kotlin.OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun PlayerProgressIndicator(player: Player) {
-    if (player.duration != 0L) {
-        LinearProgressIndicator(
-            progress = player.currentPosition.toFloat() / player.duration,
-            modifier = Modifier.fillMaxWidth()
-        )
+
+    val currentStr = if (player.duration != 0L) {
+        player.currentPosition.toDuration(DurationUnit.MILLISECONDS)
+            .toComponents { hours, minutes, seconds, _ ->
+                String.format(
+                    "%02d:%02d:%02d",
+                    hours,
+                    minutes,
+                    seconds,
+                )
+            }
     } else {
-        LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
+        "--:--:--"
     }
+    val totalStr = if (player.duration != 0L) {
+        player.currentPosition.toDuration(DurationUnit.MILLISECONDS)
+            .toComponents { hours, minutes, seconds, _ ->
+                String.format(
+                    "%02d:%02d:%02d",
+                    hours,
+                    minutes,
+                    seconds,
+                )
+            }
+    } else {
+        "--:--:--"
+    }
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+    ) {
+        if (player.duration != 0L) {
+            LinearProgressIndicator(
+                modifier = Modifier.fillMaxWidth(),
+                progress = player.currentPosition.toFloat() / player.duration,
+            )
+        } else {
+            LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
+        }
+        Spacer(modifier = Modifier.height(4.dp))
+        Text(
+            modifier = Modifier.fillMaxWidth(),
+            text = "$currentStr / $totalStr",
+            textAlign = TextAlign.Right,
+            color = MaterialTheme.colorScheme.onSurface,
+            maxLines = 1
+        )
+    }
+
 }

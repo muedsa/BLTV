@@ -2,9 +2,10 @@ package com.muedsa.compose.tv.widget
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.ExperimentalComposeUiApi
@@ -13,6 +14,7 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.tv.foundation.lazy.list.TvLazyListState
 import androidx.tv.foundation.lazy.list.TvLazyRow
@@ -21,15 +23,24 @@ import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import com.muedsa.compose.tv.model.ContentModel
+import com.muedsa.compose.tv.model.KeyModel
+import com.muedsa.compose.tv.theme.CardContentPadding
+import com.muedsa.compose.tv.theme.HorizontalPosterSize
+import com.muedsa.compose.tv.theme.ImageCardRowCardPadding
 import com.muedsa.compose.tv.theme.TvTheme
+import com.muedsa.compose.tv.theme.VerticalPosterSize
+import timber.log.Timber
+
 
 @OptIn(ExperimentalTvMaterial3Api::class, ExperimentalComposeUiApi::class)
 @Composable
 fun <T> ImageCardsRow(
+    modifier: Modifier = Modifier,
     state: TvLazyListState = rememberTvLazyListState(),
     title: String,
     modelList: List<T> = listOf(),
     imageFn: (model: T) -> String,
+    imageSize: DpSize = HorizontalPosterSize,
     contentFn: (model: T) -> ContentModel? = { _ -> null },
     onItemFocus: (index: Int, item: T) -> Unit = { _, _ -> },
     onItemClick: (index: Int, item: T) -> Unit = { _, _ -> }
@@ -39,14 +50,15 @@ fun <T> ImageCardsRow(
 
     val firstItemFocusRequester = remember { FocusRequester() }
 
-    Column(Modifier.height(150.dp)) {
+    Column(modifier) {
         Text(
-            modifier = Modifier.padding(start = 10.dp),
+            modifier = Modifier.padding(start = ImageCardRowCardPadding),
             text = title,
             color = MaterialTheme.colorScheme.onBackground,
             style = MaterialTheme.typography.titleLarge,
             maxLines = 1
         )
+        Spacer(modifier = Modifier.height(ImageCardRowCardPadding))
         TvLazyRow(
             modifier = Modifier
                 .focusRequester(focusRequester)
@@ -54,24 +66,34 @@ fun <T> ImageCardsRow(
                     exit = { focusRequester.saveFocusedChild(); FocusRequester.Default }
                     enter = {
                         if (focusRequester.restoreFocusedChild()) {
+                            Timber.d("row restoreFocusedChild")
                             FocusRequester.Cancel
-                        } else {
+                        } else if (modelList.isNotEmpty() && state.firstVisibleItemIndex == 0) {
+                            Timber.d("row focused first Child")
                             firstItemFocusRequester
+                        } else {
+                            Timber.d("row focused default child")
+                            FocusRequester.Default
                         }
                     }
                 },
             state = state,
-            contentPadding = PaddingValues(end = 100.dp)
+            contentPadding = PaddingValues(
+                start = ImageCardRowCardPadding,
+                bottom = ImageCardRowCardPadding,
+                end = 100.dp
+            )
         ) {
             modelList.forEachIndexed { index, it ->
-                var modifier = Modifier.padding(end = 12.dp)
+                var itemModifier = Modifier.padding(end = ImageCardRowCardPadding)
                 if (index == 0) {
-                    modifier = modifier.focusRequester(firstItemFocusRequester)
+                    itemModifier = itemModifier.focusRequester(firstItemFocusRequester)
                 }
-                item {
+                item(key = if (it is KeyModel) it.key else null) {
                     ImageContentCard(
-                        modifier = modifier,
+                        modifier = itemModifier,
                         url = imageFn(it),
+                        imageSize = imageSize,
                         type = CardType.COMPACT,
                         model = contentFn(it),
                         onItemFocus = { onItemFocus(index, it) },
@@ -86,42 +108,70 @@ fun <T> ImageCardsRow(
 @OptIn(ExperimentalTvMaterial3Api::class, ExperimentalComposeUiApi::class)
 @Composable
 fun <T> StandardImageCardsRow(
+    modifier: Modifier = Modifier,
     state: TvLazyListState = rememberTvLazyListState(),
     title: String,
     modelList: List<T> = listOf(),
     imageFn: (model: T) -> String,
+    imageSize: DpSize = HorizontalPosterSize,
     contentFn: (model: T) -> ContentModel? = { _ -> null },
     onItemFocus: (index: Int, item: T) -> Unit = { _, _ -> },
     onItemClick: (index: Int, item: T) -> Unit = { _, _ -> }
 ) {
     val focusRequester = remember { FocusRequester() }
 
-    Column {
+    val firstItemFocusRequester = remember { FocusRequester() }
+
+    val rowBottomPadding =
+        if (modelList.isNotEmpty() && modelList.stream().anyMatch {
+                contentFn(it) != null
+            }) ImageCardRowCardPadding - CardContentPadding
+        else ImageCardRowCardPadding
+
+    Column(modifier) {
         Text(
-            modifier = Modifier.padding(start = 10.dp),
+            modifier = Modifier.padding(start = ImageCardRowCardPadding),
             text = title,
             color = MaterialTheme.colorScheme.onBackground,
             style = MaterialTheme.typography.titleLarge,
             maxLines = 1
         )
+        Spacer(modifier = Modifier.height(10.dp))
         TvLazyRow(
             modifier = Modifier
                 .focusRequester(focusRequester)
                 .focusProperties {
                     exit = { focusRequester.saveFocusedChild(); FocusRequester.Default }
-                    enter =
-                        { if (focusRequester.restoreFocusedChild()) FocusRequester.Cancel else FocusRequester.Default }
+                    enter = {
+                        if (focusRequester.restoreFocusedChild()) {
+                            Timber.d("row restoreFocusedChild")
+                            FocusRequester.Cancel
+                        } else if (modelList.isNotEmpty() && state.firstVisibleItemIndex == 0) {
+                            Timber.d("row focused first Child")
+                            firstItemFocusRequester
+                        } else {
+                            Timber.d("row focused default child")
+                            FocusRequester.Default
+                        }
+                    }
                 },
             state = state,
-            contentPadding = PaddingValues(end = 100.dp)
+            contentPadding = PaddingValues(
+                start = ImageCardRowCardPadding,
+                bottom = rowBottomPadding,
+                end = 100.dp
+            )
         ) {
             modelList.forEachIndexed { index, it ->
-                item {
+                item(key = if (it is KeyModel) it.key else null) {
+                    var itemModifier = Modifier.padding(end = ImageCardRowCardPadding)
+                    if (index == 0) {
+                        itemModifier = itemModifier.focusRequester(firstItemFocusRequester)
+                    }
                     ImageContentCard(
-                        modifier = Modifier
-                            .width(215.dp)
-                            .padding(end = 12.dp),
+                        modifier = itemModifier,
                         url = imageFn(it),
+                        imageSize = imageSize,
                         type = CardType.STANDARD,
                         model = contentFn(it),
                         onItemFocus = { onItemFocus(index, it) },
@@ -139,9 +189,26 @@ fun ImageCardsRowPreview() {
     val modelList = listOf("Item 1", "Item 2", "Item 3", "Item 4", "Item 5", "Item 5")
     TvTheme {
         ImageCardsRow(
+            modifier = Modifier.fillMaxWidth(),
             title = "Row Title",
             modelList = modelList,
             imageFn = { _ -> "" },
+            contentFn = { ContentModel(it) }
+        )
+    }
+}
+
+@Preview
+@Composable
+fun VerticalImageCardsRowPreview() {
+    val modelList = listOf("Item 1", "Item 2", "Item 3", "Item 4", "Item 5", "Item 5")
+    TvTheme {
+        ImageCardsRow(
+            modifier = Modifier.fillMaxWidth(),
+            title = "Row Title",
+            modelList = modelList,
+            imageFn = { _ -> "" },
+            imageSize = VerticalPosterSize,
             contentFn = { ContentModel(it) }
         )
     }
@@ -153,9 +220,26 @@ fun StandardImageCardsRowPreview() {
     val modelList = listOf("Item 1", "Item 2", "Item 3", "Item 4", "Item 5", "Item 5")
     TvTheme {
         StandardImageCardsRow(
+            modifier = Modifier.fillMaxWidth(),
             title = "Standard Row Title",
             modelList = modelList,
             imageFn = { _ -> "" },
+            contentFn = { ContentModel(it) }
+        )
+    }
+}
+
+@Preview
+@Composable
+fun StandardVerticalImageCardsRowPreview() {
+    val modelList = listOf("Item 1", "Item 2", "Item 3", "Item 4", "Item 5", "Item 5")
+    TvTheme {
+        StandardImageCardsRow(
+            modifier = Modifier.fillMaxWidth(),
+            title = "Standard Row Title",
+            modelList = modelList,
+            imageFn = { _ -> "" },
+            imageSize = VerticalPosterSize,
             contentFn = { ContentModel(it) }
         )
     }
