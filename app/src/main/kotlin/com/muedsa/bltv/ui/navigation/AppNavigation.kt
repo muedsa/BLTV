@@ -15,8 +15,8 @@ import com.muedsa.bltv.model.video.VideoViewModel
 import com.muedsa.bltv.ui.features.detail.LiveDetailScreen
 import com.muedsa.bltv.ui.features.detail.VideoDetailScreen
 import com.muedsa.bltv.ui.features.home.HomeScreen
-import com.muedsa.bltv.ui.features.others.NotFoundScreen
 import com.muedsa.bltv.ui.features.up.UpVideosScreen
+import com.muedsa.compose.tv.widget.NotFoundScreen
 
 @Composable
 fun AppNavigation(navController: NavHostController) {
